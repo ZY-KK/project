@@ -12,7 +12,7 @@ import numpy as np
 import random
 import cv2
 
-class PandaReachEnv(gym.Env):
+class PandaGraspEnv(gym.Env):
     
     base_position = [0, 0, 0]
 
@@ -84,10 +84,7 @@ class PandaReachEnv(gym.Env):
         return reward
 
     def get_observation(self):
-        ee_pos = self.robot.get_ee_position()
-        target_pos = self.get_target_pos(self.object_000_id)
-        observation = np.append(ee_pos, target_pos).astype(np.float32)
-        return observation
+        pass
         
     def get_distance_obj(self, target_position, ee_position):
         return np.linalg.norm([ee_position[0] - target_position[0],

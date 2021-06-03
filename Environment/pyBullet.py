@@ -121,6 +121,31 @@ class PyBullet:
 
             rgb_array = rgb_array[:, :, :3]
             return rgb_array
+        if mode == 'depth_array':
+            view_matrix = p.computeViewMatrixFromYawPitchRoll(
+                cameraTargetPosition=target_position,
+                distance=distance,
+                yaw=yaw,
+                pitch=pitch,
+                roll=roll,
+                upAxisIndex=2,
+            )
+            proj_matrix = p.computeProjectionMatrixFOV(
+                fov=60, aspect=float(width) / height, nearVal=0.1, farVal=100.0
+            )
+            (_, _, px, depth, _) = p.getCameraImage(
+                width=width,
+                height=height,
+                viewMatrix=view_matrix,
+                projectionMatrix=proj_matrix,
+                renderer=p.ER_BULLET_HARDWARE_OPENGL
+            )
+            depth_array = np.array(depth, dtype=np.uint8)
+            depth_array = np.reshape(depth_array, (720,960, 1))
+
+            return depth_array
+
+
 
 
     def get_base_position(self, body):
