@@ -1,4 +1,5 @@
 
+from enum import Flag
 import os
 from numpy.core.fromnumeric import shape
 import pybullet as p
@@ -44,7 +45,26 @@ class Panda(PyBulletRobot):
         self.sim.set_friction(self.body_name, self.FINGERS_INDICES[0], fingers_friction)
         self.sim.set_friction(self.body_name, self.FINGERS_INDICES[1], fingers_friction)
 
+        # True: open, False: close
+        self.gripper_state = True
 
+    def gripper_close(self):
+        # left close
+        self.sim.set_joint_angle(self.body_name, self.FINGERS_INDICES[0], 0.0)
+
+        # right close
+        self.sim.set_joint_angle(self.body_name, self.FINGERS_INDICES[1], 0.0)
+        self.gripper_state = False
+    def gripper_open(self):
+        # left open
+        self.sim.set_joint_angle(self.body_name, self.FINGERS_INDICES[0], 0.04)
+        # right open
+        self.sim.set_joint_angle(self.body_name, self.FINGERS_INDICES[1], 0.04)
+        self.gripper_state = True
+
+    def get_gripper_state(self):
+        return self.gripper_state
+        
     def get_ee_position(self):
         return self.get_link_position(self.ee_link)
     def get_ee_velocity(self):

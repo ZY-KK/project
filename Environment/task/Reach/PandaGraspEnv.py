@@ -35,6 +35,13 @@ class PandaGraspEnv(gym.env):
 
         
 
+    def get_contact_points(self):
+        bodyA = self.robot
+        linkIndexA = 9 # 9, 10 
+        contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
+
+        return contact_points
+
     def get_closest_object_dis(self, object_positions: Dict[str, Tuple[float, float, float]]):
         min_distance = sys.float_info.max
 
