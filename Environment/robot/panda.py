@@ -55,6 +55,7 @@ class Panda(PyBulletRobot):
         # right close
         self.sim.set_joint_angle(self.body_name, self.FINGERS_INDICES[1], 0.0)
         self.gripper_state = False
+        
     def gripper_open(self):
         # left open
         self.sim.set_joint_angle(self.body_name, self.FINGERS_INDICES[0], 0.04)

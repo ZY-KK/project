@@ -106,9 +106,9 @@ class Curriculum():
 
 
     def reward_touch(self, **kwargs) -> float:
-        contact_points = self.task.get_contact_points()
-
-        if len(contact_points)>0:
+        contact_points_left = self.task.get_contact_points_left()
+        contact_points_right = self.task_get_contact_points_right()
+        if len(contact_points_left)>0 or len(contact_points_right)>0:
             if GraspStep.TOUCH.value>=self.step:
                 self.is_sucess = True
 
@@ -117,6 +117,7 @@ class Curriculum():
         else:
             return 0.0
     def reward_grasp(self, **kwargs)-> float:
+
         
             
 

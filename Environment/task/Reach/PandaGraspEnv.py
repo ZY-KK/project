@@ -35,12 +35,30 @@ class PandaGraspEnv(gym.env):
 
         
 
-    def get_contact_points(self):
+    def get_contact_points_left(self):
         bodyA = self.robot
         linkIndexA = 9 # 9, 10 
         contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
 
         return contact_points
+
+    def get_contact_points_right(self):
+        bodyA = self.robot
+        linkIndexA = 10 # 9, 10 
+        contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
+        return contact_points
+    def get_grasped_object(self):
+        # if gripper open
+        grasp_model_ready = {}
+        if self.robot.get_gripper_state==True:
+            return []
+        contact_points_left = self.get_contact_points_left()
+        contact_points_right = self.get_contact_points_right()
+        if len(contact_points_left==0):
+            return []
+        else:
+
+
 
     def get_closest_object_dis(self, object_positions: Dict[str, Tuple[float, float, float]]):
         min_distance = sys.float_info.max
