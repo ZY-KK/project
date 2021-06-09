@@ -151,6 +151,9 @@ class PyBullet:
     def get_contact_points(self, bodyA, linkIndexA):
         return p.getContactPoints(linkIndexA=linkIndexA, bodyA = bodyA)
 
+    def get_contact_points_A_and_B(self, bodyA, linkIndexA,  bodyB):
+        return p.getContactPoints(bodyA = bodyA, linkIndexA = linkIndexA, bodyB=bodyB)
+
     def get_base_position(self, body):
         """Get the position of the body.
         Args:

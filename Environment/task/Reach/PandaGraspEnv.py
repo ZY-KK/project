@@ -1,3 +1,4 @@
+from Environment.task.Grasp.curriculum import Curriculum
 import itertools
 import gym
 from gym import error, spaces, utils
@@ -22,6 +23,9 @@ class PandaGraspEnv(gym.env):
         self._is_done = False
         self.robot = Panda(self.sim, base_position = [0.0, 0.0, 0.0])
         self.object_ids = []
+        self.curriculum \
+            = Curriculum(task=self, enable_ws_scale=False, min_scale=0.1, enable_object_increase=False, max_count=4, enable_steps=False, reach_required_dis=0.1, from_reach=True, sparse_reward=True, step_increase_rewards=True, step_reward_multiplier=7.0, verbose=True, lift_height=0.125, act_quick_reward=-0.005, ground_collision_reward=-1.0, ground_collisions_till_termination=100, success_rate_rolling_average_n=100, restart_every_n_steps=0, success_rate_threshold=0.6, restart_exploration=False)
+
 
     def create_action_space(self):
         self.action_space = spaces.Box(low = -1.0, high = 1.0, shape=(self.n_action,), dtype = np.float32)
@@ -34,7 +38,25 @@ class PandaGraspEnv(gym.env):
     def get_observation(self):
         depth_array = self.sim.render(mode = 'depth_array')
 
-        
+    def get_reward(self):
+        reward = self.curriculum.get_reward()
+
+        return reward
+    def is_done(self):
+        done =self.curriculum.is_done()
+
+        return done
+    def get_info(self):
+        info =self.curriculum.get_info()
+
+        return info
+    def reset(self):
+        self.robot.reset()
+        self._is_done=False
+        obs = self.get_observation()
+        self.curriculum.reset_task()
+
+        return obs
 
     def get_contact_points_left(self):
         bodyA = self.robot
@@ -134,14 +156,27 @@ class PandaGraspEnv(gym.env):
         pos, _ = self.sim.get_object_pos_and_orientation(objectUid)
         return pos
         
+    def check_contact_plane(self):
+        linkIndexA = 9
+        contact_points_l = self.sim.get_contact_points_A_and_B(bodyA = self.robot, linkIndexA=linkIndexA, bodyB = self.plane)
+        linkIndexA = 10
+        contact_points_r = self.sim.get_contact_points_A_and_B(bodyA = self.robot, linkIndexA=linkIndexA, bodyB = self.plane)
+        if len(contact_points_l)>0 or len(contact_points_r)>0:
+            return False
+        return True
 
     def get_inverse_kinematics(self, newPos, orientation):
         return self.robot.get_inverse_kinematics(newPos, orientation)
     def get_object_ids(self):
         return self.object_ids
+    def get_plane_id(self):
+        return self.plane
+    def get_table_id(self):
+        return self.table
+
     def _create_scene(self):
-        self.sim.add_plane(basePosition = [0, 0, -0.65])
-        self.sim.add_table(basePosition = [0.5,0,-0.65])
+        self.plane = self.sim.add_plane(basePosition = [0, 0, -0.65])
+        self.table = self.sim.add_table(basePosition = [0.5,0,-0.65])
         self.object_000_id = self.sim.add_object_000([0.65, 0, 0])
         self.object_ids.append(self.object_000_id)
-        
+    
