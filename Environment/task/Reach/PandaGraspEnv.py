@@ -1,3 +1,4 @@
+import itertools
 import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
@@ -47,6 +48,7 @@ class PandaGraspEnv(gym.env):
         linkIndexA = 10 # 9, 10 
         contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
         return contact_points
+
     def get_grasped_object(self):
         # if gripper open
         grasp_model_ready = {}
@@ -57,6 +59,52 @@ class PandaGraspEnv(gym.env):
         if len(contact_points_left==0):
             return []
         else:
+            for point_l in contact_points_left:
+                model_id = point_l[2]
+                if model_id not in grasp_model_ready.keys():
+                    grasp_model_ready[model_id] = []
+                
+                grasp_model_ready[model_id].append(point_l)
+            for point_r in contact_points_right:
+                model_id = point_r[2]
+                if model_id not in grasp_model_ready.keys():
+                    grasp_model_ready[model_id] = []
+                
+                grasp_model_ready[model_id].append(point_r)
+        grasp_objects = []
+        for model, points_list in grasp_model_ready.items():
+            # the gripper is open, if the num of contact points is less than two, continute
+            if len(points_list)<len(self.robot.FINGERS_INDICES):
+                continue
+            
+            normals_avgs = []
+            for points in points_list:
+                normals_avg = np.array([0.0, 0.0, 0.0])
+                for point in points:
+                    normals_avg+=point
+                
+                normals_avg/=np.linalg.norm(normals_avg)
+
+                normals_avgs.append(normals_avg)
+
+            normal_angles = []
+            for v_1, v_2 in itertools.combinations(normals_avgs, 2):
+                angle = np.arccos(np.clip(np.dot(v_1, v_2), -1.0, 1.0))
+                normal_angles.appned(angle)
+
+            
+            angle_threshold = 0.5*np.pi/len(self.robot.FINGERS_INDICES)
+            for ag in normal_angles:
+                if ag>angle_threshold:
+                    grasp_objects[model]
+                    continue
+        return grasp_objects
+                
+            
+
+
+                    
+                
 
 
 

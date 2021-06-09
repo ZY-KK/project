@@ -35,15 +35,20 @@ class GraspStep(enum.Enum):
 
     
 class Curriculum():
-    def __init__(self, task, enable_ws_scale: bool, min_scale:float, enable_object_increase: bool, max_count:int, enable_steps:bool, reach_required_dis:float, from_reach: bool, sparse_reward:bool) -> None:
+    def __init__(self, task, enable_ws_scale: bool, min_scale:float, enable_object_increase: bool, max_count:int, enable_steps:bool, reach_required_dis:float, from_reach: bool, sparse_reward:bool,step_increase_rewards: bool,step_reward_multiplier:float, verbose: bool, lift_height:float,act_quick_reward:float) -> None:
 
         self.enable_steps = enable_steps
         
         self.from_reach =from_reach
         self.sparse_reward = sparse_reward
         # make sure that the current begin step [REACH, TOUCH, GRASP, LIFT]
-
+        self.task = task
         self.reach_required_dis = reach_required_dis
+        self.step_increase_rewards = step_increase_rewards
+        self.step_reward_multiplier = step_reward_multiplier
+        self.verbose = verbose
+        self.lift_height= lift_height
+        self.act_quick_reward = act_quick_reward
         if not self.enable_stages:
             self.step: GraspStep = GraspStep.last()
         elif self.from_reach:
@@ -81,6 +86,19 @@ class Curriculum():
         kwargs['object_pos'] = pos_tmp
 
         # TODO for loop
+        for step in range(first_step, GraspStep.last().value+1):
+            if step>=GraspStep.GRAPS.value() and not 'grasp_obj' in kwargs:
+                kwargs['grasp_obj'] =self.task.get_grasped_object()
+            if self.step_increase_rewards:
+                reward_factor = self.step_reward_multiplier**(step-1)
+            else:
+                reward_factor = self.step_reward_multiplier**(self.step.value-step)
+            # TODO: reward
+            reward+=reward_factor*self.GET_REWARD[GraspStep(step)](self, **kwargs)
+
+            if not self.step_completed[GraspStep(step)]:
+                break
+
 
 
     def reward_reach(self, **kwargs)-> float:
@@ -116,11 +134,63 @@ class Curriculum():
             return 1.0
         else:
             return 0.0
-    def reward_grasp(self, **kwargs)-> float:
-
-        
             
+    def reward_grasp(self, **kwargs)-> float:
+        grasp_obj = kwargs['grasp_obj']
+        if len(grasp_obj)>0:
+            if GraspStep.GRAPS.value>=self.step:
+                self.is_sucess = True
+            else:
+                self.is_sucess
+            if self.verbose:
+                print('grasp_obj', grasp_obj)
+        
+            return 1.0
+        else:
+            return 0.0
+        
+    def reward_lift(self, **kwargs):
+        grasp_obj = kwargs['grasp_obj']
+        if len(grasp_obj)==0:
+            return 0.0
+        reward = 0.0
+        obj_pos = kwargs['object_pos']
+        for obj in grasp_obj:
+            if obj_pos[obj][2]>self.lift_height:
+                if GraspStep.LIFT.value>=self.step.value:
+                    self.is_sucess = True
+                else:
+                    self.is_sucess
+                self.step_completed[GraspStep.LIFT]=True
+                if self.sparse_reward:
+                    reward+=1.0
+                # TODO: not sparse reward
 
+    def reward_all(self, **kwargs):
+
+        reward = self.act_quick_reward
+
+
+
+
+            
+    def _log_curriculum(self):
+        logger.record("curriculum/current_stage",
+                      self._stage, exclude="tensorboard")
+        logger.record("curriculum/current_stage_id",
+                      self._stage.value, exclude="stdout")
+        logger.record("curriculum/current_success_rate",
+                      self._success_rate)
+        if self._restart_every_n_steps > 0:
+            logger.record("curriculum/steps_until_reset",
+                          self._reset_step_counter)
+
+    GET_REWARD = {
+        GraspStep.REACH : reward_reach,
+        GraspStep.TOUCH : reward_touch,
+        GraspStep.GRASP :reward_grasp,
+        GraspStep.LIFT : reward_lift,
+    }
 
 
 
