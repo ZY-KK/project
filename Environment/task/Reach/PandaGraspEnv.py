@@ -13,7 +13,7 @@ import math
 import numpy as np
 import random
 import cv2
-
+from PIL import Image
 class PandaGraspEnv(gym.env):
 
     def __init__(self, sim) -> None:
@@ -37,6 +37,8 @@ class PandaGraspEnv(gym.env):
 
     def get_observation(self):
         depth_array = self.sim.render(mode = 'depth_array')
+        print("=========test=================")
+        return depth_array
 
     def get_reward(self):
         reward = self.curriculum.get_reward()
@@ -55,7 +57,7 @@ class PandaGraspEnv(gym.env):
         self._is_done=False
         obs = self.get_observation()
         self.curriculum.reset_task()
-
+        obs = np.asarray(obs)
         return obs
 
     def get_contact_points_left(self):

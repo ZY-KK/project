@@ -12,7 +12,7 @@ class ProcessFrame84(gym.ObservationWrapper):
             low=0, high=255, shape=(84, 84, 1), dtype=np.uint8)
 
     def observation(self, obs):
-        return ProcessFrame84.process(self.env.render(mode='rgb_array'))
+        return ProcessFrame84.process(self.env.sim.render(mode='rgb_array'))
 
     def process(frame):
         if frame.size == 720 * 960 * 3:

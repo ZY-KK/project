@@ -59,10 +59,10 @@ class PyBullet:
         mode="rgb_array",
         width=960,
         height=720,
-        target_position=(0.0, 0.0, 0.0),
+        target_position=(0.7, 0.0, 0.05),
         distance=.7,
-        yaw=45,
-        pitch=-15,
+        yaw=90,
+        pitch=-70,
         roll=0,
     ):
         """Render.
@@ -83,6 +83,7 @@ class PyBullet:
         Returns:
             An RGB array if mode is 'rgb_array'.
         """
+        
         if mode == "human":
             p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING)
             time.sleep(self.dt)  # wait to seems like real speed
