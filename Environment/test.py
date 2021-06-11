@@ -7,7 +7,7 @@ import pybullet as p
 from pyBullet import PyBullet
 from task.Grasp.PandaGraspEnv import PandaGraspEnv
 # from PandaReachEnv import PandaReachEnv
-from task.wrapper import ProcessFrame84, ImageToPyTorch, MoveTowardZ
+from task.wrapper import ProcessFrame84, ImageToPyTorch, MoveTowardZ, ProcessDepthFrame84, DepthToPyTorch
 import matplotlib.pyplot as plt
 from stable_baselines3 import PPO, SAC
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
@@ -16,13 +16,16 @@ import numpy as np
 from custom_policy import CustomCNN, CustomActorCriticPolicy
 from stable_baselines3.common.evaluation import evaluate_policy
 env = PandaGraspEnv(sim = PyBullet(render =True))
-
+'''
 env = ProcessFrame84(env)
-env = ImageToPyTorch(env)
+#env = ImageToPyTorch(env)
+'''
+env = ProcessDepthFrame84(env)
+env = DepthToPyTorch(env)
 
-for _ in range(50):
-    action = env.action_space.sample()
-    print(action)
-    env.step(action)
-
-env.close()
+image = env.reset()
+print(image)
+plt.figure()
+plt.imshow(image.squeeze())
+plt.title('Example extracted screen')
+plt.show()

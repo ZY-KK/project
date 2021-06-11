@@ -264,8 +264,8 @@ class Curriculum():
         logger.record("curriculum/current_stage_id",
                       self.step.value, exclude="stdout")
         logger.record("curriculum/current_success_rate",
-                      self._success_rate)
-        if self._restart_every_n_steps > 0:
+                      self.success_rate)
+        if self.restart_every_n_steps > 0:
             logger.record("curriculum/steps_until_reset",
                           self.reset_step_counter)
 

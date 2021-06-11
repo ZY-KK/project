@@ -65,6 +65,10 @@ class PyBullet:
         pitch=-70,
         roll=0,
     ):
+        self._width = width
+        self._height = height
+        self._near = 0.02
+        self._far = 10.
         """Render.
         If mode is human, make the rendering real-time. All other arguments are
         unused. If mode is 'rgb_array', return an rgb_array of the scene.
@@ -97,7 +101,7 @@ class PyBullet:
                 upAxisIndex=2,
             )
             proj_matrix = p.computeProjectionMatrixFOV(
-                fov=60, aspect=float(width) / height, nearVal=0.1, farVal=100.0
+                fov=60, aspect=float(self._width) / self._height, nearVal=self._near, farVal=self._far
             )
             (_, _, px, depth, _) = p.getCameraImage(
                 width=width,
@@ -118,7 +122,7 @@ class PyBullet:
             # rgb_array = rgb_array[:, :, :3]
             # return rgb_array
             rgb_array = np.array(px, dtype=np.uint8)
-            rgb_array = np.reshape(rgb_array, (720,960, 4))
+            rgb_array = np.reshape(rgb_array, (self._width,self._height, 4))
 
             rgb_array = rgb_array[:, :, :3]
             return rgb_array
@@ -131,20 +135,22 @@ class PyBullet:
                 roll=roll,
                 upAxisIndex=2,
             )
+            
             proj_matrix = p.computeProjectionMatrixFOV(
-                fov=60, aspect=float(width) / height, nearVal=0.1, farVal=100.0
+                fov=60, aspect=float(width) / height, nearVal=self._near, farVal=self._far
             )
             (_, _, px, depth, _) = p.getCameraImage(
-                width=width,
-                height=height,
+                width=self._width,
+                height=self._height,
                 viewMatrix=view_matrix,
                 projectionMatrix=proj_matrix,
                 renderer=p.ER_BULLET_HARDWARE_OPENGL
             )
-            depth_array = np.array(depth, dtype=np.uint8)
-            depth_array = np.reshape(depth_array, (720,960, 1))
-
-            return depth_array
+            
+            depth_array = np.reshape(depth, (self._width,self._height, 1))
+            depth = 1. * self._far * self._near / (self._far - (self._far - self._near) * depth_array)
+            #print('depth=',depth)
+            return depth
 
 
 
