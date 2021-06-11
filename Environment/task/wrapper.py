@@ -5,12 +5,14 @@ import cv2
 from gym.wrappers import TimeLimit
 from numpy.core.fromnumeric import shape
 
+WIDTH = 64
+HEIGHT = 64
 class ProcessFrame84(gym.ObservationWrapper):
     def __init__(self, env=None):
         super(ProcessFrame84, self).__init__(env)
         self.env = env
         self.observation_space = gym.spaces.Box(
-            low=0, high=255, shape=(84, 84, 1), dtype=np.uint8)
+            low=0, high=255, shape=(WIDTH, HEIGHT, 1), dtype=np.uint8)
 
     def observation(self, obs):
         return ProcessFrame84.process(self.env.sim.render(mode='rgb_array'))
@@ -25,10 +27,10 @@ class ProcessFrame84(gym.ObservationWrapper):
         #      img[:, :, 2] * 0.114
 
         resized_screen = cv2.resize(
-            img, (112, 84), interpolation=cv2.INTER_AREA)
-        y_t = resized_screen[:, 14:98]
+            img, (112, HEIGHT), interpolation=cv2.INTER_AREA)
+        y_t = resized_screen[:, 24:88]
         
-        y_t = np.reshape(y_t, [84, 84, 3])
+        y_t = np.reshape(y_t, [WIDTH, HEIGHT, 3])
         return y_t.astype(np.uint8)
 class ProcessDepthFrame84(gym.ObservationWrapper):
     def __init__(self, env: None) -> None:
@@ -46,10 +48,10 @@ class ProcessDepthFrame84(gym.ObservationWrapper):
             assert False, "Unknown resolution."
 
         resized_screen = cv2.resize(
-            img, (112, 84), interpolation=cv2.INTER_AREA)
-        y_t = resized_screen[:, 14:98]
+            img, (112, HEIGHT), interpolation=cv2.INTER_AREA)
+        y_t = resized_screen[:, 24:88]
         
-        y_t = np.reshape(y_t, [84, 84, 1])
+        y_t = np.reshape(y_t, [WIDTH, HEIGHT, 1])
         return y_t.astype(np.float32)
 class DepthToPyTorch(gym.ObservationWrapper):
     def __init__(self, env) -> None:
