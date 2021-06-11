@@ -149,6 +149,8 @@ class PyBullet:
 
 
 
+    def get_body_ids(self):
+        return self._bodies_idx
     def get_contact_points(self, bodyA, linkIndexA):
         return p.getContactPoints(linkIndexA=linkIndexA, bodyA = bodyA)
 

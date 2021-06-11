@@ -88,8 +88,20 @@ class Panda(PyBulletRobot):
         pass
         
     def set_action(self, action):
-
-        pass
+        gripper_action = action[0]
+        if gripper_action>0:
+            self.gripper_open()
+            self.gripper_state =True
+        elif gripper_action<0:
+            self.gripper_close()
+            self.gripper_state=False
+        pos = action[1:4]
+        orientation = action[4:8]
+        # TODO apply action
+        angles = self.get_inverse_kinematics(pos, orientation)
+        self.set_joint_values(angles)
+        
+        
     
     def get_observation():
         pass

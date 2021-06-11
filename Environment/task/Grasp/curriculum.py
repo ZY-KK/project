@@ -1,5 +1,5 @@
 from __future__ import annotations
-from stable_baseline3.common import logger
+from stable_baselines3.common import logger
 from typing import Union, Type, Dict
 import enum
 import math
@@ -12,17 +12,16 @@ class GraspStep(enum.Enum):
     TOUCH = 2
     GRASP = 3
     LIFT  = 4
-
     @classmethod
     def first(self) -> Type[GraspStep]:
 
         return GraspStep(1)
-
+    @classmethod
     def last(self) -> Type[GraspStep]:
         
         length = len(GraspStep)
-
         return GraspStep(length)
+    @classmethod
     def next(self) -> Union[Type[GraspStep], None]:
 
         next_val = self.value+1
@@ -59,7 +58,7 @@ class Curriculum():
         self.restart_every_n_steps =restart_every_n_steps
         self.reset_step_counter = restart_every_n_steps
         self.success_rate_threshold = success_rate_threshold
-        if not self.enable_stages:
+        if not self.enable_steps:
             self.step: GraspStep = GraspStep.last()
         elif self.from_reach:
             self.step:GraspStep = GraspStep.REACH
@@ -86,7 +85,7 @@ class Curriculum():
                 break
 
 
-        kwargs = []
+        kwargs = {}
         object_ids = self.task.get_object_ids()
         pos_tmp = {}
         for obj in object_ids:
@@ -97,7 +96,7 @@ class Curriculum():
 
         # TODO for loop
         for step in range(first_step, GraspStep.last().value+1):
-            if step>=GraspStep.GRASP.value() and not 'grasp_obj' in kwargs:
+            if step>=GraspStep.GRASP.value and not 'grasp_obj' in kwargs:
                 kwargs['grasp_obj'] =self.task.get_grasped_object()
             if self.step_increase_rewards:
                 reward_factor = self.step_reward_multiplier**(step-1)

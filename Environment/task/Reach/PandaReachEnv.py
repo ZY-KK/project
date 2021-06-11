@@ -12,7 +12,7 @@ import numpy as np
 import random
 import cv2
 
-class PandaGraspEnv(gym.Env):
+class PandaReachEnv(gym.Env):
     
     base_position = [0, 0, 0]
 

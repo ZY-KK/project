@@ -5,7 +5,7 @@ import os
 from panda import PandaEnv
 import pybullet as p
 from pyBullet import PyBullet
-from task.Grasp.PandaReachEnv import PandaGraspEnv
+from task.Grasp.PandaGraspEnv import PandaGraspEnv
 # from PandaReachEnv import PandaReachEnv
 from task.wrapper import ProcessFrame84, ImageToPyTorch, MoveTowardZ
 import matplotlib.pyplot as plt
@@ -20,12 +20,9 @@ env = PandaGraspEnv(sim = PyBullet(render =True))
 env = ProcessFrame84(env)
 env = ImageToPyTorch(env)
 
-# env = PandaEnv()
-img = env.reset()
-check_env(env)
+for _ in range(50):
+    action = env.action_space.sample()
+    print(action)
+    env.step(action)
 
-plt.figure()
-plt.imshow(img.squeeze(),cmap='gray')
-plt.title('Example extracted screen')
-plt.show()
-
+env.close()

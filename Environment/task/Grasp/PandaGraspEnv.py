@@ -1,4 +1,4 @@
-from Environment.task.Grasp.curriculum import Curriculum
+from .curriculum import Curriculum
 import itertools
 import gym
 from gym import error, spaces, utils
@@ -14,24 +14,33 @@ import numpy as np
 import random
 import cv2
 from PIL import Image
-class PandaGraspEnv(gym.env):
+
+class PandaGraspEnv(gym.Env):
 
     def __init__(self, sim) -> None:
         super().__init__()
-        self.n_action = 10
+        self.n_action = 8
         self.sim = sim
         self._is_done = False
         self.robot = Panda(self.sim, base_position = [0.0, 0.0, 0.0])
         self.object_ids = []
+        self.robot_id = self.sim.get_body_ids()['panda']
+        self._create_scene()
         self.curriculum \
             = Curriculum(task=self, enable_ws_scale=False, min_scale=0.1, enable_object_increase=False, max_count=4, enable_steps=False, reach_required_dis=0.1, from_reach=True, sparse_reward=True, step_increase_rewards=True, step_reward_multiplier=7.0, verbose=True, lift_height=0.125, act_quick_reward=-0.005, ground_collision_reward=-1.0, ground_collisions_till_termination=100, success_rate_rolling_average_n=100, restart_every_n_steps=0, success_rate_threshold=0.6, restart_exploration=False)
-
+        self.create_space()
+        
+    def create_space(self):
+        self.create_observation_space()
+        self.create_action_space()
 
     def create_action_space(self):
         self.action_space = spaces.Box(low = -1.0, high = 1.0, shape=(self.n_action,), dtype = np.float32)
 
         return self.action_space
-
+    def create_observation_space(self):
+        self.observation_space = spaces.Box(low = -np.inf, high = np.inf, shape=(6, ),dtype=np.float32)
+    
     def is_done(self):
         return self._is_done
 
@@ -61,14 +70,22 @@ class PandaGraspEnv(gym.env):
         return obs
 
     def get_contact_points_left(self):
-        bodyA = self.robot
+        bodyA = self.robot_id
         linkIndexA = 9 # 9, 10 
         contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
 
         return contact_points
+    def step(self, action):
+        # TODO step function
+        self.robot.set_action(action)
+        obs = self.get_observation()
+        reward = self.get_reward()
+        done = self.is_done()
+        info = self.get_info()
+        return obs, reward, done, info
 
     def get_contact_points_right(self):
-        bodyA = self.robot
+        bodyA = self.robot_id
         linkIndexA = 10 # 9, 10 
         contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
         return contact_points
@@ -159,10 +176,12 @@ class PandaGraspEnv(gym.env):
         return pos
         
     def check_contact_plane(self):
+        print('robot:', self.robot_id)
+        print('table:', self.table)
         linkIndexA = 9
-        contact_points_l = self.sim.get_contact_points_A_and_B(bodyA = self.robot, linkIndexA=linkIndexA, bodyB = self.plane)
+        contact_points_l = self.sim.get_contact_points_A_and_B(bodyA = self.robot_id, linkIndexA=linkIndexA, bodyB = self.table)
         linkIndexA = 10
-        contact_points_r = self.sim.get_contact_points_A_and_B(bodyA = self.robot, linkIndexA=linkIndexA, bodyB = self.plane)
+        contact_points_r = self.sim.get_contact_points_A_and_B(bodyA = self.robot_id, linkIndexA=linkIndexA, bodyB = self.table)
         if len(contact_points_l)>0 or len(contact_points_r)>0:
             return False
         return True
@@ -177,8 +196,11 @@ class PandaGraspEnv(gym.env):
         return self.table
 
     def _create_scene(self):
-        self.plane = self.sim.add_plane(basePosition = [0, 0, -0.65])
-        self.table = self.sim.add_table(basePosition = [0.5,0,-0.65])
-        self.object_000_id = self.sim.add_object_000([0.65, 0, 0])
+        self.sim.add_plane(basePosition = [0, 0, -0.65])
+        self.plane = self.sim.get_body_ids()['plane']
+        self.sim.add_table(basePosition = [0.5,0,-0.65])
+        self.table = self.sim.get_body_ids()['table']
+        self.sim.add_object_000([0.65, 0, 0])
+        self.object_000_id = self.sim.get_body_ids()['000']
         self.object_ids.append(self.object_000_id)
     
