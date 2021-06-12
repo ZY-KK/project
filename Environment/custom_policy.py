@@ -5,10 +5,12 @@ from typing import Callable, Dict, List, Optional, Tuple, Type, Union
 from stable_baselines3 import PPO
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 from stable_baselines3.common.policies import ActorCriticPolicy
-class CustomCNN(BaseFeaturesExtractor):
+from torch.nn.modules import linear
+from torch.nn.modules.pooling import MaxPool2d
+class CustomCNNSimple(BaseFeaturesExtractor):
 
     def __init__(self, observation_space: gym.Space, features_dim: int=256):
-        super(CustomCNN, self).__init__(observation_space, features_dim=features_dim)
+        super(CustomCNNSimple, self).__init__(observation_space, features_dim=features_dim)
         n_input_channels = observation_space.shape[0]
 
         self.cnn = nn.Sequential(
@@ -36,6 +38,43 @@ class CustomCNN(BaseFeaturesExtractor):
         return self.linear(self.cnn(observations))
         
 
+class CustomCNN(BaseFeaturesExtractor):
+    def __init__(self, observation_space: gym.Space, features_dim: int=64):
+        super().__init__(observation_space, features_dim=features_dim)
+        n_input_channels = observation_space.shape[0]
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(n_input_channels, 16, kernal_size =5, stride=1, padding=2),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=5, stride=1, padding=2),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+        self.conv4 = nn.Sequential(
+            nn.Conv2d(64, 128, kernel_size=5, stride=1, padding=2),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+        self.fc = nn.Linear(4*4*128, 8)
+    def forward(self, observations: th.Tensor) -> th.Tensor:
+        out  =self.conv1(observations)
+        out = self.conv2(out)
+        out = self.conv3(out)
+        out = self.conv4(out)
+        out = out.view(out.size(0), -1)
+        out = self.fc(out)
+        return out
+        
 class CustomNetwork(nn.Module):
     """
     Custom network for policy and value function.
