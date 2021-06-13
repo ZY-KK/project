@@ -28,7 +28,7 @@ for pt in pts:
 normal/=np.linalg.norm(normal)
 print(normal)
 '''
-
+'''
 a = []
 
 b = [1, 1, 1]
@@ -40,3 +40,12 @@ a.append(d)
 print(a)
 for n1, n2 in itertools.combinations(a, 2):
     print(n1, n2)
+'''
+
+import torch 
+print(torch.__version__)  
+print(torch.cuda.is_available())   
+print(torch.backends.cudnn.enabled)    
+device = torch.device('cuda')
+print(torch.cuda.get_device_properties(device))
+print(torch.tensor([1.0, 2.0]).cuda())

@@ -65,7 +65,7 @@ class PandaReachEnv(gym.Env):
         newPosition = [current_pos[0]+dx, current_pos[1]+dy, current_pos[2]+dz]
         newPosition[2] = max(0, newPosition[2])
         pos = self.get_inverse_kinematics(newPosition, orientation)
-        print(f"pos: {pos}")
+        # print(f"pos: {pos}")
         self.robot.control_joints(pos)
 
     def get_reward(self):

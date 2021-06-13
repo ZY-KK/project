@@ -41,5 +41,5 @@ eval_callback = EvalCallback(
                 eval_freq=10000,
                 deterministic=True,
             )
-model = PPO("CnnPolicy",env=env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log='/tmp/ppo/')
-model.learn(1000)
+model = PPO(CustomActorCriticPolicy,env=env, verbose=1, tensorboard_log='/tmp/ppo/')
+model.learn(10000, callback = checkpoint_callback)

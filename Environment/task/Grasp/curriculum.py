@@ -143,6 +143,7 @@ class Curriculum():
             return True
 
     def get_info(self):
+        info = {}
         if self.step!=GraspStep.first() and self.restart_every_n_steps>0:
             self.reset_step_counter-=1
             self.check_restart_first()
@@ -151,6 +152,7 @@ class Curriculum():
             self.restart_exploration=False
 
             return info
+        return info
     def next_step(self):
         if self.step ==GraspStep.last():
             return False

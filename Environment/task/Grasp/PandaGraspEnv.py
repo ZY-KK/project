@@ -46,7 +46,7 @@ class PandaGraspEnv(gym.Env):
 
     def get_observation(self):
         depth_array = self.sim.render(mode = 'depth_array')
-        print("=========test=================")
+        # print("=========test=================")
         return depth_array
 
     def get_reward(self):
@@ -176,8 +176,8 @@ class PandaGraspEnv(gym.Env):
         return pos
         
     def check_contact_plane(self):
-        print('robot:', self.robot_id)
-        print('table:', self.table)
+        # print('robot:', self.robot_id)
+        # print('table:', self.table)
         linkIndexA = 9
         contact_points_l = self.sim.get_contact_points_A_and_B(bodyA = self.robot_id, linkIndexA=linkIndexA, bodyB = self.table)
         linkIndexA = 10

@@ -12,7 +12,7 @@ class ProcessFrame84(gym.ObservationWrapper):
         super(ProcessFrame84, self).__init__(env)
         self.env = env
         self.observation_space = gym.spaces.Box(
-            low=0, high=255, shape=(WIDTH, HEIGHT, 1), dtype=np.uint8)
+            low=0, high=255, shape=(WIDTH, HEIGHT, 3), dtype=np.uint8)
 
     def observation(self, obs):
         return ProcessFrame84.process(self.env.sim.render(mode='rgb_array'))
@@ -36,11 +36,11 @@ class ProcessDepthFrame84(gym.ObservationWrapper):
     def __init__(self, env: None) -> None:
         super(ProcessDepthFrame84, self).__init__(env)
         self.env = env
-        self.observation_space = gym.spaces.Box(low = 0.0, high = 1.0, shape = (84, 84, 1))
+        self.observation_space = gym.spaces.Box(low = 0.0, high = 1.0, shape = (64, 64, 1))
     def observation(self, obs):
         return ProcessDepthFrame84.process(self.sim.render(mode= 'depth_array'))
     def process(frame):
-        print('frame',frame)
+        # print('frame',frame)
         if frame.size == 720*960*1:
             img = np.reshape(frame, [720, 960, 1]).astype(
                 np.float32)
