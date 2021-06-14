@@ -25,11 +25,14 @@ class PandaGraspEnv(gym.Env):
         self.robot = Panda(self.sim, base_position = [0.0, 0.0, 0.0])
         self.object_ids = []
         self.robot_id = self.sim.get_body_ids()['panda']
+        self.workspace_volum = [0.2, 0.2, 0.2]
+
+
         self._create_scene()
         self.curriculum \
             = Curriculum(task=self, enable_ws_scale=False, min_scale=0.1, enable_object_increase=False, max_count=4, enable_steps=False, reach_required_dis=0.1, from_reach=True, sparse_reward=True, step_increase_rewards=True, step_reward_multiplier=7.0, verbose=True, lift_height=0.125, act_quick_reward=-0.005, ground_collision_reward=-1.0, ground_collisions_till_termination=100, success_rate_rolling_average_n=100, restart_every_n_steps=0, success_rate_threshold=0.6, restart_exploration=False)
         self.create_space()
-        self.workspace_volum = (0.25, 0.25, 0.2)
+        
     def create_space(self):
         self.create_observation_space()
         self.create_action_space()
@@ -202,8 +205,36 @@ class PandaGraspEnv(gym.Env):
         self.plane = self.sim.get_body_ids()['plane']
         # self.sim.add_table(basePosition = [0.5,0,-0.65])
         # self.table = self.sim.get_body_ids()['table']
-        self.sim.add_object_000([0, 0, 0])
+        self.sim.add_object_000([0.3, 0, 0])
         print('==================')
         self.object_000_id = self.sim.get_body_ids()['000']
+        
         self.object_ids.append(self.object_000_id)
+        self.add_random_obj()
     
+
+    def add_random_obj(self):
+        # random position
+        x = np.random.uniform(low =self.workspace_volum[0], high =0.5)
+        y = np.random.uniform(low = -self.workspace_volum[1], high = self.workspace_volum[1])
+        z = 0
+        pos = [x, y, z]
+        
+        # random id
+        obj_id = '000'
+        # 578 object not good
+        while(obj_id in self.sim.get_body_ids().keys()):
+            id = np.random.randint(low = 0, high= 998)
+            
+            if id<10:
+                obj_id = '00'+str(id)
+            elif id >=10 and id <100:
+                obj_id = '0'+str(id)
+            else:
+                obj_id = str(id)
+            # print('obj_id(env)=', obj_id)
+        
+        self.sim.add_random_object(obj_id, pos)
+        self.object_ids.append(self.sim.get_body_ids()[obj_id])
+    
+

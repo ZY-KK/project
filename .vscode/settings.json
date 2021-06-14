@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "/home/yizhuo/miniconda3/envs/drl_env/bin/python",
+    "python.pythonPath": "/home/yi/miniconda3/envs/drl_env/bin/python",
     "jupyter.jupyterServerType": "local"
 }

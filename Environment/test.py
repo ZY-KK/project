@@ -30,4 +30,5 @@ for i in range(1000):
     action = env.action_space.sample()
     print(action)
     obs, _, _, _ = env.step(action)
+    # print(obs)
     time.sleep(1)

@@ -365,6 +365,12 @@ class PyBullet:
         # print('========1',self._bodies_idx['plane'])
         
         return self._bodies_idx['plane']
+    def add_random_object(self, obj_id, basePosition):
+        
+        # print('id==',obj_id)
+        self._bodies_idx[obj_id] = p.loadURDF(os.path.join(self.urdfRootPath, 'random_urdfs/'+obj_id+'/'+obj_id+'.urdf'), basePosition=basePosition)
+        return self._bodies_idx[obj_id]
+            
     def add_object_000(self, basePosition):
         self._bodies_idx['000'] = p.loadURDF(os.path.join(self.urdfRootPath, "random_urdfs/000/000.urdf"), basePosition=basePosition)
         # print('========2',self._bodies_idx['000'])
