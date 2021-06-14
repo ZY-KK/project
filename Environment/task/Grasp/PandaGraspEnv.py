@@ -29,7 +29,7 @@ class PandaGraspEnv(gym.Env):
         self.curriculum \
             = Curriculum(task=self, enable_ws_scale=False, min_scale=0.1, enable_object_increase=False, max_count=4, enable_steps=False, reach_required_dis=0.1, from_reach=True, sparse_reward=True, step_increase_rewards=True, step_reward_multiplier=7.0, verbose=True, lift_height=0.125, act_quick_reward=-0.005, ground_collision_reward=-1.0, ground_collisions_till_termination=100, success_rate_rolling_average_n=100, restart_every_n_steps=0, success_rate_threshold=0.6, restart_exploration=False)
         self.create_space()
-        
+        self.workspace_volum = (0.25, 0.25, 0.2)
     def create_space(self):
         self.create_observation_space()
         self.create_action_space()
@@ -89,6 +89,8 @@ class PandaGraspEnv(gym.Env):
         linkIndexA = 10 # 9, 10 
         contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
         return contact_points
+    def get_quaternion_from_euler(self, angle):
+        return self.sim.get_quaternion_from_euler(angle)
 
     def get_grasped_object(self):
         # if gripper open
@@ -179,9 +181,9 @@ class PandaGraspEnv(gym.Env):
         # print('robot:', self.robot_id)
         # print('table:', self.table)
         linkIndexA = 9
-        contact_points_l = self.sim.get_contact_points_A_and_B(bodyA = self.robot_id, linkIndexA=linkIndexA, bodyB = self.table)
+        contact_points_l = self.sim.get_contact_points_A_and_B(bodyA = self.robot_id, linkIndexA=linkIndexA, bodyB = self.plane)
         linkIndexA = 10
-        contact_points_r = self.sim.get_contact_points_A_and_B(bodyA = self.robot_id, linkIndexA=linkIndexA, bodyB = self.table)
+        contact_points_r = self.sim.get_contact_points_A_and_B(bodyA = self.robot_id, linkIndexA=linkIndexA, bodyB = self.plane)
         if len(contact_points_l)>0 or len(contact_points_r)>0:
             return False
         return True
@@ -196,11 +198,12 @@ class PandaGraspEnv(gym.Env):
         return self.table
 
     def _create_scene(self):
-        self.sim.add_plane(basePosition = [0, 0, -0.65])
+        self.sim.add_plane(basePosition = [0, 0, 0])
         self.plane = self.sim.get_body_ids()['plane']
-        self.sim.add_table(basePosition = [0.5,0,-0.65])
-        self.table = self.sim.get_body_ids()['table']
-        self.sim.add_object_000([0.65, 0, 0])
+        # self.sim.add_table(basePosition = [0.5,0,-0.65])
+        # self.table = self.sim.get_body_ids()['table']
+        self.sim.add_object_000([0, 0, 0])
+        print('==================')
         self.object_000_id = self.sim.get_body_ids()['000']
         self.object_ids.append(self.object_000_id)
     

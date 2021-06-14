@@ -41,11 +41,42 @@ print(a)
 for n1, n2 in itertools.combinations(a, 2):
     print(n1, n2)
 '''
+'''
+import pybullet as p
+import time
+import math
 
-import torch 
-print(torch.__version__)  
-print(torch.cuda.is_available())   
-print(torch.backends.cudnn.enabled)    
-device = torch.device('cuda')
-print(torch.cuda.get_device_properties(device))
-print(torch.tensor([1.0, 2.0]).cuda())
+import pybullet_data
+p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
+
+p.loadURDF("plane.urdf")
+cubeId = p.loadURDF("cube_small.urdf", 0, 0, 1)
+p.setGravity(0, 0, -10)
+p.setRealTimeSimulation(1)
+cid = p.createConstraint(cubeId, -1, -1, -1, p.JOINT_FIXED, [0, 0, 0], [0, 0, 0], [0, 0, 1])
+print(cid)
+print(p.getConstraintUniqueId(0))
+a = -math.pi
+while 1:
+  a = a + 0.01
+  if (a > math.pi):
+    a = -math.pi
+  time.sleep(.01)
+  p.setGravity(0, 0, -10)
+  pivot = [a, 0, 1]
+  orn = p.getQuaternionFromEuler([a, 0, 0])
+  p.changeConstraint(cid, pivot, jointChildFrameOrientation=orn, maxForce=50)
+
+p.removeConstraint(cid)
+'''
+
+
+action = [0.2, 0.2, -1, 0.8, 1, 0.5, 0.5, 0.5]
+tmp = np.asarray(action[1:4])
+print(action)
+constraint = [0.0, 0.5]
+np.clip(tmp, constraint[0], constraint[1], out = tmp)
+print(tmp)
+action[1:4] = tmp
+print(action)

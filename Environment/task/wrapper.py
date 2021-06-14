@@ -77,9 +77,15 @@ class ImageToPyTorch(gym.ObservationWrapper):
 class MoveTowardZ(gym.ActionWrapper):
     def __init__(self, env):
         super(MoveTowardZ, self).__init__(env)
-
+        self.constraint = [0.1, 0.5]
+        self.env = env
     def action(self, action):
-        action[2] = -.3
+        # action[2] = -.3
+        orientation = self.env.get_quaternion_from_euler([0.,-np.pi,np.pi/2.])
+        tmp = np.asarray(action[1:4])
+        np.clip(tmp, self.constraint[0], self.constraint[1], out = tmp)
+        action[1:4] = tmp
+        action[4:8] = orientation
         return action
 
 class TimeFeatureWrapper(gym.Wrapper):

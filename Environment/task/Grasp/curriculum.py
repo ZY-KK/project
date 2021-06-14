@@ -183,7 +183,7 @@ class Curriculum():
         object_pos = kwargs['object_pos']
         min_distance  = self.task.get_closest_object_dis(object_pos)
         if min_distance<self.reach_required_dis:
-            if GraspStep.REACH.value>=self.step:
+            if GraspStep.REACH.value>=self.step.value:
                 self.is_sucess = True
             self.step_completed[GraspStep.REACH] = True
 
@@ -202,9 +202,9 @@ class Curriculum():
 
     def reward_touch(self, **kwargs) -> float:
         contact_points_left = self.task.get_contact_points_left()
-        contact_points_right = self.task_get_contact_points_right()
+        contact_points_right = self.task.get_contact_points_right()
         if len(contact_points_left)>0 or len(contact_points_right)>0:
-            if GraspStep.TOUCH.value>=self.step:
+            if GraspStep.TOUCH.value>=self.step.value:
                 self.is_sucess = True
 
             self.step_completed[GraspStep.TOUCH] = True
@@ -215,7 +215,7 @@ class Curriculum():
     def reward_grasp(self, **kwargs)-> float:
         grasp_obj = kwargs['grasp_obj']
         if len(grasp_obj)>0:
-            if GraspStep.GRASP.value>=self.step:
+            if GraspStep.GRASP.value>=self.step.value:
                 self.is_sucess = True
             else:
                 self.is_sucess

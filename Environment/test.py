@@ -15,17 +15,19 @@ from stable_baselines3.common.env_checker import check_env
 import numpy as np
 from custom_policy import CustomCNN, CustomActorCriticPolicy
 from stable_baselines3.common.evaluation import evaluate_policy
+import time
 env = PandaGraspEnv(sim = PyBullet(render =True))
-'''
+
 env = ProcessFrame84(env)
 #env = ImageToPyTorch(env)
+env = MoveTowardZ(env)
 '''
 env = ProcessDepthFrame84(env)
 env = DepthToPyTorch(env)
+'''
 env.reset()
-policy_kwargs = dict(
-    features_extractor_class=CustomCNN,
-    features_extractor_kwargs=dict(features_dim=128),
-)
-model = PPO("CnnPolicy",env=env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log='/tmp/ppo/')
-model.learn(1000)
+for i in range(1000):
+    action = env.action_space.sample()
+    print(action)
+    obs, _, _, _ = env.step(action)
+    time.sleep(1)

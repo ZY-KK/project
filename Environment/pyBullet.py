@@ -34,6 +34,7 @@ class PyBullet:
         self.n_substeps = n_substeps
         self.timestep = 1.0 / 500
         # p.setTimeStep(self.timestep)
+        # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.setGravity(0, 0, -9.81)
         self._bodies_idx = {}
@@ -162,7 +163,8 @@ class PyBullet:
 
     def get_contact_points_A_and_B(self, bodyA, linkIndexA,  bodyB):
         return p.getContactPoints(bodyA = bodyA, linkIndexA = linkIndexA, bodyB=bodyB)
-
+    def get_quaternion_from_euler(self, angle):
+        return p.getQuaternionFromEuler(angle)
     def get_base_position(self, body):
         """Get the position of the body.
         Args:
@@ -359,7 +361,7 @@ class PyBullet:
         return self._bodies_idx['table']
 
     def add_plane(self, basePosition):
-        self._bodies_idx['plane'] = p.loadURDF(os.path.join(self.urdfRootPath,"plane.urdf"), basePosition=[0,0,-0.65])
+        self._bodies_idx['plane'] = p.loadURDF(os.path.join(self.urdfRootPath,"plane.urdf"), basePosition=basePosition)
         # print('========1',self._bodies_idx['plane'])
         
         return self._bodies_idx['plane']
