@@ -11,8 +11,8 @@ a = p.loadURDF("plane.urdf", useMaximalCoordinates=useMaximalCoordinates)
 b = p.loadURDF("cube.urdf", [0, 0, 0], useMaximalCoordinates=useMaximalCoordinates)
 p.setGravity(0, 3, -10)
 p.stepSimulation()
-pts = p.getContactPoints(a)
-print(a)
+pts = p.getContactPoints(a,b)
+print(a, b)
 print("num pts=", len(pts))
 totalNormalForce = 0
 totalFrictionForce = [0, 0, 0]
@@ -21,12 +21,13 @@ normal = np.array([0.0, 0.0, 0.0])
 for pt in pts:
         #print("pt.normal=",pt[7])
         #print("pt.normalForce=",pt[9])
-    
+        print(pt)
         normal+=pt[7]
 
 
-normal/=np.linalg.norm(normal)
-print(normal)
+# normal/=np.linalg.norm(normal)
+# print(normal)
+print(pts)
 '''
 '''
 a = []
@@ -71,7 +72,7 @@ while 1:
 p.removeConstraint(cid)
 '''
 
-
+'''
 action = [0.2, 0.2, -1, 0.8, 1, 0.5, 0.5, 0.5]
 tmp = np.asarray(action[1:4])
 print(action)
@@ -80,3 +81,9 @@ np.clip(tmp, constraint[0], constraint[1], out = tmp)
 print(tmp)
 action[1:4] = tmp
 print(action)
+'''
+
+action = [1, 2, 3]
+tmp_z = np.asarray(action[2])
+np.clip(tmp_z, 0.0, 0.5, out = tmp_z)
+print(tmp_z)

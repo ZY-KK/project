@@ -29,7 +29,7 @@ class PyBullet:
             # p.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 0)
         else:
             p.connect(p.DIRECT)
-        p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40, cameraTargetPosition=[0.55,-0.35,0.2])
+        # p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40, cameraTargetPosition=[0.7,0.0,0.05])
         self.urdfRootPath = pybullet_data.getDataPath()
         self.n_substeps = n_substeps
         self.timestep = 1.0 / 500
@@ -60,10 +60,10 @@ class PyBullet:
         mode="rgb_array",
         width=960,
         height=720,
-        target_position=(0.7, 0.0, 0.05),
+        target_position=(0.2, 0.0, 0.05),
         distance=.7,
-        yaw=90,
-        pitch=-70,
+        yaw=75,
+        pitch=-30,
         roll=0,
     ):
         self._width = width

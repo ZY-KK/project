@@ -114,6 +114,7 @@ class Curriculum():
         reward+=neg_reward
 
         return reward
+
     def update_success_rate(self, is_success:bool):
         self.success_rate = ((self.success_rate_rolling_average_n-1)*self.success_rate+float(is_success))/self.success_rate_rolling_average_n
 
@@ -141,7 +142,7 @@ class Curriculum():
             self.reset_step_counter = self.restart_every_n_steps
             self.restart_exploration = True
             return True
-
+        return False
     def get_info(self):
         info = {}
         if self.step!=GraspStep.first() and self.restart_every_n_steps>0:
@@ -254,7 +255,7 @@ class Curriculum():
             return reward
         
 
-
+        return reward
 
 
 

@@ -7,7 +7,7 @@ import pybullet as p
 from pyBullet import PyBullet
 from task.Grasp.PandaGraspEnv import PandaGraspEnv
 # from PandaReachEnv import PandaReachEnv
-from task.wrapper import ProcessFrame84, ImageToPyTorch, MoveTowardZ, ProcessDepthFrame84, DepthToPyTorch
+from task.wrapper import ProcessFrame84, ImageToPyTorch, MoveConstraint, ProcessDepthFrame84, DepthToPyTorch
 import matplotlib.pyplot as plt
 from stable_baselines3 import PPO, SAC
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
@@ -20,7 +20,7 @@ env = PandaGraspEnv(sim = PyBullet(render =True))
 
 env = ProcessFrame84(env)
 #env = ImageToPyTorch(env)
-env = MoveTowardZ(env)
+env = MoveConstraint(env)
 '''
 env = ProcessDepthFrame84(env)
 env = DepthToPyTorch(env)
@@ -32,3 +32,5 @@ for i in range(1000):
     obs, _, _, _ = env.step(action)
     # print(obs)
     time.sleep(1)
+    env.reset()
+    time.sleep(2)

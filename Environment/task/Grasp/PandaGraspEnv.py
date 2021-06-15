@@ -30,7 +30,7 @@ class PandaGraspEnv(gym.Env):
 
         self._create_scene()
         self.curriculum \
-            = Curriculum(task=self, enable_ws_scale=False, min_scale=0.1, enable_object_increase=False, max_count=4, enable_steps=False, reach_required_dis=0.1, from_reach=True, sparse_reward=True, step_increase_rewards=True, step_reward_multiplier=7.0, verbose=True, lift_height=0.125, act_quick_reward=-0.005, ground_collision_reward=-1.0, ground_collisions_till_termination=100, success_rate_rolling_average_n=100, restart_every_n_steps=0, success_rate_threshold=0.6, restart_exploration=False)
+            = Curriculum(task=self, enable_ws_scale=False, min_scale=0.1, enable_object_increase=False, max_count=4, enable_steps=True, reach_required_dis=0.03, from_reach=True, sparse_reward=True, step_increase_rewards=True, step_reward_multiplier=7.0, verbose=True, lift_height=0.225, act_quick_reward=-0.005, ground_collision_reward=-1.0, ground_collisions_till_termination=100, success_rate_rolling_average_n=100, restart_every_n_steps=0, success_rate_threshold=0.6, restart_exploration=False)
         self.create_space()
         
     def create_space(self):
@@ -44,26 +44,27 @@ class PandaGraspEnv(gym.Env):
     def create_observation_space(self):
         self.observation_space = spaces.Box(low = -np.inf, high = np.inf, shape=(6, ),dtype=np.float32)
     
-    def is_done(self):
-        return self._is_done
 
     def get_observation(self):
+        '''
         depth_array = self.sim.render(mode = 'depth_array')
         # print("=========test=================")
         return depth_array
+        '''
+        pass
 
     def get_reward(self):
         reward = self.curriculum.get_reward()
-
         return reward
+
     def is_done(self):
         done =self.curriculum.is_done()
-
         return done
+
     def get_info(self):
         info =self.curriculum.get_info()
-
         return info
+        
     def reset(self):
         self.robot.reset()
         self._is_done=False
@@ -76,7 +77,11 @@ class PandaGraspEnv(gym.Env):
         bodyA = self.robot_id
         linkIndexA = 9 # 9, 10 
         contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
-
+        return contact_points
+    def get_contact_points_right(self):
+        bodyA = self.robot_id
+        linkIndexA = 10 # 9, 10 
+        contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
         return contact_points
     def step(self, action):
         # TODO step function
@@ -87,11 +92,7 @@ class PandaGraspEnv(gym.Env):
         info = self.get_info()
         return obs, reward, done, info
 
-    def get_contact_points_right(self):
-        bodyA = self.robot_id
-        linkIndexA = 10 # 9, 10 
-        contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
-        return contact_points
+    
     def get_quaternion_from_euler(self, angle):
         return self.sim.get_quaternion_from_euler(angle)
 
@@ -105,14 +106,17 @@ class PandaGraspEnv(gym.Env):
         if len(contact_points_left==0):
             return []
         else:
+            model_id = contact_points_left[0][2]
             for point_l in contact_points_left:
-                model_id = point_l[2]
                 if model_id not in grasp_model_ready.keys():
                     grasp_model_ready[model_id] = []
                 
                 grasp_model_ready[model_id].append(point_l)
+        if len(contact_points_right==0):
+            return []
+        else:
+            model_id = contact_points_right[0][2]
             for point_r in contact_points_right:
-                model_id = point_r[2]
                 if model_id not in grasp_model_ready.keys():
                     grasp_model_ready[model_id] = []
                 
@@ -127,7 +131,7 @@ class PandaGraspEnv(gym.Env):
             for points in points_list:
                 normals_avg = np.array([0.0, 0.0, 0.0])
                 for point in points:
-                    normals_avg+=point
+                    normals_avg+=point[7] # contactNormalOnB
                 
                 normals_avg/=np.linalg.norm(normals_avg)
 
@@ -142,7 +146,7 @@ class PandaGraspEnv(gym.Env):
             angle_threshold = 0.5*np.pi/len(self.robot.FINGERS_INDICES)
             for ag in normal_angles:
                 if ag>angle_threshold:
-                    grasp_objects[model]
+                    grasp_objects.append(model)
                     continue
         return grasp_objects
                 
@@ -155,7 +159,7 @@ class PandaGraspEnv(gym.Env):
 
 
     def get_closest_object_dis(self, object_positions: Dict[str, Tuple[float, float, float]]):
-        min_distance = sys.float_info.max
+        min_distance = np.inf
 
         ee_position = self.robot.get_ee_position()
         for object_position in object_positions.values():
@@ -188,8 +192,8 @@ class PandaGraspEnv(gym.Env):
         linkIndexA = 10
         contact_points_r = self.sim.get_contact_points_A_and_B(bodyA = self.robot_id, linkIndexA=linkIndexA, bodyB = self.plane)
         if len(contact_points_l)>0 or len(contact_points_r)>0:
-            return False
-        return True
+            return True
+        return False
 
     def get_inverse_kinematics(self, newPos, orientation):
         return self.robot.get_inverse_kinematics(newPos, orientation)
