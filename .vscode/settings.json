@@ -1,4 +1,5 @@
 {
     "python.pythonPath": "/home/yi/miniconda3/envs/drl_env/bin/python",
-    "jupyter.jupyterServerType": "local"
+    "jupyter.jupyterServerType": "local",
+    "python.linting.enabled": false
 }

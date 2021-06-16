@@ -1,1 +1,0 @@
-from robot.panda import Panda
