@@ -115,7 +115,7 @@ class PandaGraspEnv(gym.Env):
                     grasp_model_ready[model_id] = []
                 
                 grasp_model_ready[model_id].append(point_l)
-        if len(contact_points_right)==0:
+        if len(contact_points_right==0):
             return []
         else:
             model_id = contact_points_right[0][2]

@@ -33,7 +33,7 @@ class Panda(PyBulletRobot):
     FINGERS_INDICES = [9, 10]
     NEUTRAL_JOINT_VALUES = [0.00, 0.41, 0.00, -1.85, -0.00, 2.26, 0.79, 0, 0]
     JOINT_FORCES = [87, 87, 87, 87, 12, 120, 120, 170, 170]
-
+    rest_poses = [0,-0.215,0,-2.57,0,2.356,2.356,0.08,0.08]
     def __init__(self, sim, base_position, fingers_friction=1.0):
         self.ee_link = 11
         super().__init__(
@@ -88,17 +88,25 @@ class Panda(PyBulletRobot):
         pass
         
     def set_action(self, action):
-        gripper_action = action[0]
+        current_pos = self.get_ee_position()
+        gripper_action = action[3]
         if gripper_action>0:
             self.gripper_open()
             self.gripper_state =True
         elif gripper_action<0:
             self.gripper_close()
             self.gripper_state=False
-        pos = action[1:4]
+        pos = action[0:3]
+        newPos = [
+                    current_pos[0]+pos[0],
+                    current_pos[1]+pos[1],
+                    current_pos[2]+pos[2]    
+                    
+                ]
         orientation = action[4:8]
+        print('action:', action)
         # TODO apply action
-        angles = self.get_inverse_kinematics(pos, orientation)
+        angles = self.get_inverse_kinematics(newPos, orientation)
         self.set_joint_values(angles)
         
         
@@ -118,7 +126,7 @@ class Panda(PyBulletRobot):
 
     def set_joint_neutral(self):
         """Set the robot to its neutral pose."""
-        self.set_joint_values(self.NEUTRAL_JOINT_VALUES)
+        self.set_joint_values(self.rest_poses)
 
     def set_joint_values(self, angles):
         """Set the joint position of a body. Can induce collisions.

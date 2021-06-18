@@ -155,7 +155,8 @@ class PyBullet:
             return depth
 
 
-
+    def resetSimulation(self):
+        p.resetSimulation()
 
     def get_body_ids(self):
         return self._bodies_idx

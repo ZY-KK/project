@@ -32,19 +32,14 @@ env = ProcessFrame84(env)
 env = MoveConstraint(env)
 '''
 image = env.reset()
-print(image)
-check_env(env)
-plt.figure()
-plt.imshow(image.squeeze(),cmap='gray')
-plt.title('Example extracted screen')
-plt.show()
-'''
+print(env.action_space)
+
+# plt.figure()
+# plt.imshow(image.squeeze(),cmap='gray')
+# plt.title('Example extracted screen')
+# plt.show()
+time.sleep(2)
 for i in range(1000):
     action = env.action_space.sample()
-    print(action)
+    # print(action)
     obs, _, _, _ = env.step(action)
-    # print(obs)
-    time.sleep(1)
-    env.reset()
-    time.sleep(2)
-'''

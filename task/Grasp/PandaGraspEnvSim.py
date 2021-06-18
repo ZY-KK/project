@@ -24,14 +24,14 @@ class PandaGraspEnvSim(gym.Env):
         self.n_action = 8
         self.sim = sim
         self._is_done = False
-        self.robot = Panda(self.sim, base_position = [0.0, 0.0, 0.0])
-        self.object_ids = []
-        self.robot_id = self.sim.get_body_ids()['panda']
-        self.workspace_volum = [0.3, 0.3, 0.2]
-        self.sim.add_plane(basePosition = [0, 0, -0.65])
-        self.plane = self.sim.get_body_ids()['plane']
-        self.sim.add_table(basePosition = [0.5,0,-0.65])
-        self.table = self.sim.get_body_ids()['table']
+        # self.robot = Panda(self.sim, base_position = [0.0, 0.0, 0.0])
+        # self.object_ids = []
+        # self.robot_id = self.sim.get_body_ids()['panda']
+        # self.workspace_volum = [0.3, 0.3, 0.2]
+        # self.sim.add_plane(basePosition = [0, 0, -0.65])
+        # self.plane = self.sim.get_body_ids()['plane']
+        # self.sim.add_table(basePosition = [0.5,0,-0.65])
+        # self.table = self.sim.get_body_ids()['table']
         
 
         self.create_space()
@@ -80,9 +80,10 @@ class PandaGraspEnvSim(gym.Env):
         return info
         
     def reset(self):
+        self._create_scene()
         self.step_counter = 0
         self.robot.reset()
-        self._create_scene()
+        
         # self.curriculum.reset_task()
         self._is_done=False
         obs = self.get_observation()
@@ -225,6 +226,15 @@ class PandaGraspEnvSim(gym.Env):
         
         # self.sim.add_table(basePosition = [0.5,0,-0.65])
         # self.table = self.sim.get_body_ids()['table']
+        self.sim.resetSimulation()
+        self.robot = Panda(self.sim, base_position = [0.0, 0.0, 0.0])
+        self.object_ids = []
+        self.robot_id = self.sim.get_body_ids()['panda']
+        self.workspace_volum = [0.3, 0.3, 0.2]
+        self.sim.add_plane(basePosition = [0, 0, -0.65])
+        self.plane = self.sim.get_body_ids()['plane']
+        self.sim.add_table(basePosition = [0.5,0,-0.65])
+        self.table = self.sim.get_body_ids()['table']
         state_object= [random.uniform(0.5,0.8),random.uniform(-0.2,0.2),0.05]
         self.sim.add_object_000(state_object)
         print('==================')

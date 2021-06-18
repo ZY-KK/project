@@ -85,6 +85,7 @@ action[1:4] = tmp
 print(action)
 '''
 
+'''
 import gym
 
 env = gym.make('PandaGraspEnv-v0')
@@ -93,3 +94,9 @@ for _ in range(1000):
     env.step(env.action_space.sample()) # take a random action
     time.sleep(1)
 env.close()
+'''
+
+a = np.asarray([10.0, 20.0])
+
+a*=0.1
+print(a)
