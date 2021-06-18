@@ -16,7 +16,8 @@ import cv2
 from PIL import Image
 from bullet.pyBullet import PyBullet
 
-class PandaGraspEnv(gym.Env):
+MAX_STEP = 2000
+class PandaGraspEnvSim(gym.Env):
 
     def __init__(self, sim) -> None:
         super().__init__()
@@ -27,11 +28,12 @@ class PandaGraspEnv(gym.Env):
         self.object_ids = []
         self.robot_id = self.sim.get_body_ids()['panda']
         self.workspace_volum = [0.3, 0.3, 0.2]
+        self.sim.add_plane(basePosition = [0, 0, -0.65])
+        self.plane = self.sim.get_body_ids()['plane']
+        self.sim.add_table(basePosition = [0.5,0,-0.65])
+        self.table = self.sim.get_body_ids()['table']
+        
 
-
-        self._create_scene()
-        self.curriculum \
-            = Curriculum(task=self, enable_ws_scale=False, min_scale=0.1, enable_object_increase=False, max_count=4, enable_steps=True, reach_required_dis=0.01, from_reach=True, sparse_reward=True, step_increase_rewards=True, step_reward_multiplier=7.0, verbose=True, lift_height=0.225, act_quick_reward=-0.005, ground_collision_reward=-1.0, ground_collisions_till_termination=100, success_rate_rolling_average_n=100, restart_every_n_steps=0, success_rate_threshold=0.6, restart_exploration=False)
         self.create_space()
         
     def create_space(self):
@@ -55,24 +57,37 @@ class PandaGraspEnv(gym.Env):
         pass
 
     def get_reward(self):
-        reward = self.curriculum.get_reward()
-        return reward
+        grasp_object = self.get_grasped_object()
+        if len(grasp_object)>1:
+            self.reward = 1
+            self.done = True
+        else:
+            self.reward=0
+            self.done = False
+        self.step_counter+=1
+        if self.step_counter>MAX_STEP:
+            self.reward=0
+            self.done = False
+        return self.reward
 
     def is_done(self):
-        done =self.curriculum.is_done()
-        return done
-
+        pass
     def get_info(self):
-        info =self.curriculum.get_info()
+        info={
+            'reward': self.reward,
+            'done' : self.done
+        }
         return info
         
     def reset(self):
-        # self.robot.reset()
-        self.curriculum.reset_task()
-        # self._is_done=False
+        self.step_counter = 0
+        self.robot.reset()
+        self._create_scene()
+        # self.curriculum.reset_task()
+        self._is_done=False
         obs = self.get_observation()
         obs = np.asarray(obs)
-        print('=====', obs)
+        print('=====',obs)
         return obs
 
     def get_contact_points_left(self):
@@ -89,9 +104,8 @@ class PandaGraspEnv(gym.Env):
         # TODO step function
         self.robot.set_action(action)
         obs = self.get_observation()
-        
         reward = self.get_reward()
-        done = self.is_done()
+        done =self.done
         info = self.get_info()
         return obs, reward, done, info
 
@@ -115,7 +129,7 @@ class PandaGraspEnv(gym.Env):
                     grasp_model_ready[model_id] = []
                 
                 grasp_model_ready[model_id].append(point_l)
-        if len(contact_points_right)==0:
+        if len(contact_points_right==0):
             return []
         else:
             model_id = contact_points_right[0][2]
@@ -208,16 +222,16 @@ class PandaGraspEnv(gym.Env):
         return self.table
 
     def _create_scene(self):
-        self.sim.add_plane(basePosition = [0, 0, 0])
-        self.plane = self.sim.get_body_ids()['plane']
+        
         # self.sim.add_table(basePosition = [0.5,0,-0.65])
         # self.table = self.sim.get_body_ids()['table']
-        self.sim.add_object_000([0.4, 0, 0])
+        state_object= [random.uniform(0.5,0.8),random.uniform(-0.2,0.2),0.05]
+        self.sim.add_object_000(state_object)
         print('==================')
         self.object_000_id = self.sim.get_body_ids()['000']
         
-        self.object_ids.append(self.object_000_id)
-        self.add_random_obj()
+        # self.object_ids.append(self.object_000_id)
+        # self.add_random_obj()
     
 
     def add_random_obj(self):

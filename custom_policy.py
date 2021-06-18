@@ -37,7 +37,32 @@ class CustomCNNSimple(BaseFeaturesExtractor):
     def forward(self, observations: th.Tensor) -> th.Tensor:
         return self.linear(self.cnn(observations))
         
+class ResNetNetwork(BaseFeaturesExtractor):
+    def __init__(self, observation_space: gym.Space, features_dim: int):
+        super(ResNetNetwork, self).__init__(observation_space, features_dim=features_dim)
+        n_input_channels = observation_space.shape[0]
+        hidden_sizes = [18, features_dim, features_dim]
+        pretrained_CNN = 'resnet'+str(hidden_sizes[0])
+        print('================',pretrained_CNN)
+        self.resnet = th.hub.load('pytorch/vision:v0.9.0', pretrained_CNN, pretrained=True)
+        for param in self.resnet.parameters():
+            param.requires_grad = False
+        
+        #self.resnet.conv1 = nn.Conv2d(3, 64, kernel_size=(7,7), stride=(2,2), padding=(3,3), bias=False)
+        self.resnet.fc = nn.Linear(self.resnet.fc.in_features, hidden_sizes[1])
+        
+        self.net = nn.Sequential(
+            self.resnet
+        )
+        print(self.net)
+        
 
+    def forward(self, obs: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
+        """
+        :return: (th.Tensor, th.Tensor) latent_policy, latent_value of the specified network.
+            If all layers are shared, then ``latent_policy == latent_value``
+        """
+        return self.net(obs)
 class CustomCNN(BaseFeaturesExtractor):
     def __init__(self, observation_space: gym.Space, features_dim: int=64):
         super().__init__(observation_space, features_dim=features_dim)
@@ -132,6 +157,8 @@ class CustomNetworkWithResNet(nn.Module):
         self.resnet = th.hub.load('pytorch/vision:v0.9.0', pretrained_CNN, pretrained=True)
         for param in self.resnet.parameters():
             param.requires_grad = False
+        
+        #self.resnet.conv1 = nn.Conv2d(3, 64, kernel_size=(7,7), stride=(2,2), padding=(3,3), bias=False)
         self.resnet.fc = nn.Linear(self.resnet.fc.in_features, hidden_sizes[1])
         print(self.resnet)
         self.policy_net = nn.Sequential(
@@ -143,12 +170,12 @@ class CustomNetworkWithResNet(nn.Module):
 
         )
 
-    def forward(self, features: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
+    def forward(self, obs: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
         """
         :return: (th.Tensor, th.Tensor) latent_policy, latent_value of the specified network.
             If all layers are shared, then ``latent_policy == latent_value``
         """
-        return self.policy_net(features), self.value_net(features)
+        return self.policy_net(obs), self.value_net(obs)
 
         
 

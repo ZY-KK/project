@@ -4,10 +4,11 @@ import gym
 import os
 from panda import PandaEnv
 import pybullet as p
-from pyBullet import PyBullet
+from bullet.pyBullet import PyBullet
 from task.Grasp.PandaGraspEnv import PandaGraspEnv
+from task.Grasp.PandaGraspEnvSim import PandaGraspEnvSim
 # from PandaReachEnv import PandaReachEnv
-from task.wrapper import ProcessFrame84, ImageToPyTorch, MoveConstraint, ProcessDepthFrame84, DepthToPyTorch
+from task.wrapper import ProcessFrame84, ImageToPyTorch, MoveConstraint, ProcessGrayFrame84, GrayToPyTorch
 import matplotlib.pyplot as plt
 from stable_baselines3 import PPO, SAC
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
@@ -16,18 +17,28 @@ import numpy as np
 from custom_policy import CustomCNN, CustomActorCriticPolicy
 from stable_baselines3.common.evaluation import evaluate_policy
 import time
+
+env = PandaGraspEnvSim(sim = PyBullet(render =True))
+
+env = ProcessGrayFrame84(env)
+env = GrayToPyTorch(env)
+env = MoveConstraint(env)
+
+'''
 env = PandaGraspEnv(sim = PyBullet(render =True))
 
 env = ProcessFrame84(env)
-#env = ImageToPyTorch(env)
+# env = ImageToPyTorch(env)
 env = MoveConstraint(env)
 '''
-env = ProcessDepthFrame84(env)
-env = DepthToPyTorch(env)
-'''
-env.reset()
+image = env.reset()
+print(image)
 check_env(env)
-
+plt.figure()
+plt.imshow(image.squeeze(),cmap='gray')
+plt.title('Example extracted screen')
+plt.show()
+'''
 for i in range(1000):
     action = env.action_space.sample()
     print(action)
@@ -36,3 +47,4 @@ for i in range(1000):
     time.sleep(1)
     env.reset()
     time.sleep(2)
+'''

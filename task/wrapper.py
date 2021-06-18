@@ -32,34 +32,35 @@ class ProcessFrame84(gym.ObservationWrapper):
         
         y_t = np.reshape(y_t, [WIDTH, HEIGHT, 3])
         return y_t.astype(np.uint8)
-class ProcessDepthFrame84(gym.ObservationWrapper):
+class ProcessGrayFrame84(gym.ObservationWrapper):
     def __init__(self, env: None) -> None:
-        super(ProcessDepthFrame84, self).__init__(env)
+        super(ProcessGrayFrame84, self).__init__(env)
         self.env = env
-        self.observation_space = gym.spaces.Box(low = 0.0, high = 1.0, shape = (64, 64, 1))
+        self.observation_space = gym.spaces.Box(low = 0, high = 255, shape = (84, 84, 1))
     def observation(self, obs):
-        return ProcessDepthFrame84.process(self.sim.render(mode= 'depth_array'))
+        return ProcessGrayFrame84.process(self.sim.render(mode= 'rgb_array'))
     def process(frame):
         # print('frame',frame)
-        if frame.size == 720*960*1:
-            img = np.reshape(frame, [720, 960, 1]).astype(
+        if frame.size == 720*960*3:
+            img = np.reshape(frame, [720, 960, 3]).astype(
                 np.float32)
         else:
             assert False, "Unknown resolution."
-
+        img = img[:, :, 0] * 0.399 + img[:, :, 1] * 0.587 + \
+              img[:, :, 2] * 0.114
         resized_screen = cv2.resize(
-            img, (112, HEIGHT), interpolation=cv2.INTER_AREA)
-        y_t = resized_screen[:, 24:88]
+            img, (112, 84), interpolation=cv2.INTER_AREA)
+        y_t = resized_screen[:, 14:98]
         
-        y_t = np.reshape(y_t, [WIDTH, HEIGHT, 1])
-        return y_t.astype(np.float32)
-class DepthToPyTorch(gym.ObservationWrapper):
+        y_t = np.reshape(y_t, [84, 84, 1])
+        return y_t.astype(np.uint8)
+class GrayToPyTorch(gym.ObservationWrapper):
     def __init__(self, env) -> None:
-        super(DepthToPyTorch, self).__init__(env)
+        super(GrayToPyTorch, self).__init__(env)
         old_shape = self.observation_space.shape
         new_shape = (old_shape[-1], old_shape[0], old_shape[1])
         self.observation_space = gym.spaces.Box(
-            low = 0.0, high = 1.0, shape = new_shape, dtype = np.float32)
+            low = 0.0, high = 255.0, shape = new_shape, dtype = np.float32)
     def observation(self, observation):
         return np.moveaxis(observation, 2, 0)
 

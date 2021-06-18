@@ -60,16 +60,17 @@ class PyBullet:
         mode="rgb_array",
         width=960,
         height=720,
-        target_position=(0.2, 0.0, 0.05),
+        target_position=(0.7, 0, 0.05),
         distance=.7,
-        yaw=75,
-        pitch=-30,
+        yaw=90,
+        pitch=-70,
         roll=0,
+        upAxisIndex=2
     ):
         self._width = width
         self._height = height
-        self._near = 0.02
-        self._far = 10.
+        self._near = 0.1
+        self._far = 100.
         """Render.
         If mode is human, make the rendering real-time. All other arguments are
         unused. If mode is 'rgb_array', return an rgb_array of the scene.

@@ -4,7 +4,7 @@ import gym
 import os
 from panda import PandaEnv
 import pybullet as p
-from pyBullet import PyBullet
+from bullet.pyBullet import PyBullet
 from task.Grasp.PandaGraspEnv import PandaGraspEnv
 # from PandaReachEnv import PandaReachEnv
 from task.wrapper import ProcessFrame84, ImageToPyTorch,MoveConstraint, ProcessDepthFrame84, DepthToPyTorch
@@ -19,7 +19,7 @@ from callback import CheckpointCallback, EvalCallback, SaveVecNormalizeCallback
 env = PandaGraspEnv(sim = PyBullet(render =True))
 
 env = ProcessFrame84(env)
-#env = ImageToPyTorch(env)
+env = ImageToPyTorch(env)
 env = MoveConstraint(env)
 '''
 env = ProcessDepthFrame84(env)
@@ -43,7 +43,7 @@ eval_callback = EvalCallback(
                 eval_freq=10000,
                 deterministic=True,
             )
-model = PPO.load('./model/rl_model_10000_steps.zip', env=env)
+model = PPO.load('./model/rl_model_4000_steps.zip', env=env)
 
 mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
 
