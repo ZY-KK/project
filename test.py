@@ -17,20 +17,20 @@ import numpy as np
 from custom_policy import CustomCNN, CustomActorCriticPolicy
 from stable_baselines3.common.evaluation import evaluate_policy
 import time
-
+'''
 env = PandaGraspEnvSim(sim = PyBullet(render =True))
 
 env = ProcessGrayFrame84(env)
 env = GrayToPyTorch(env)
 env = MoveConstraint(env)
-
 '''
+
 env = PandaGraspEnv(sim = PyBullet(render =True))
 
 env = ProcessFrame84(env)
-# env = ImageToPyTorch(env)
+env = ImageToPyTorch(env)
 env = MoveConstraint(env)
-'''
+
 image = env.reset()
 print(env.action_space)
 
