@@ -20,7 +20,7 @@ class PandaGraspEnv(gym.Env):
 
     def __init__(self, sim) -> None:
         super().__init__()
-        self.n_action = 8
+        self.n_action = 4
         self.sim = sim
         self._is_done = False
         '''
@@ -66,6 +66,7 @@ class PandaGraspEnv(gym.Env):
 
     def get_info(self):
         info =self.curriculum.get_info()
+        # print('info:', info)
         return info
         
     def reset(self):
@@ -76,6 +77,7 @@ class PandaGraspEnv(gym.Env):
         obs = self.get_observation()
         obs = np.asarray(obs)
         # print('=====', obs)
+        print('reset!!')
         return obs
 
     def get_contact_points_left(self):
@@ -90,6 +92,7 @@ class PandaGraspEnv(gym.Env):
         return contact_points
     def step(self, action):
         # TODO step function
+        self.sim.step()
         self.robot.set_action(action)
         obs = self.get_observation()
         
@@ -227,16 +230,17 @@ class PandaGraspEnv(gym.Env):
         # self.sim.add_table(basePosition = [0.5,0,-0.65])
         # self.table = self.sim.get_body_ids()['table']
         self.sim.resetSimulation()
-        self.robot = Panda(self.sim, base_position = [0.0, 0.0, 0.0])
+        self.robot = Panda(self.sim, base_position = [0.0, 0.0, 0.6])
         self.object_ids = []
         self.robot_id = self.sim.get_body_ids()['panda']
         self.workspace_volum = [0.3, 0.3, 0.2]
-        self.sim.add_plane(basePosition = [0, 0, -0.65])
+        self.sim.add_plane(basePosition = [0, 0, 0])
         self.plane = self.sim.get_body_ids()['plane']
-        self.sim.add_table(basePosition = [0.5,0,-0.65])
+        self.sim.add_table(basePosition = [0.5,0,0])
         self.table = self.sim.get_body_ids()['table']
-        state_object= [random.uniform(0.5,0.8),random.uniform(-0.2,0.2),0.05]
-        self.sim.add_object_000(state_object)
+        state_object= [random.uniform(0.5,0.8),random.uniform(-0.2,0.2),0.65]
+
+        self.sim.add_object_000([0.4, 0, 0.65])
         print('==================')
         self.object_000_id = self.sim.get_body_ids()['000']
         

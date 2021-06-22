@@ -83,14 +83,6 @@ class MoveConstraint(gym.ActionWrapper):
     def action(self, action):
         # action[2] = -.3
         orientation = self.env.get_quaternion_from_euler([0.,-np.pi,np.pi/2.])
-        tmp_xy = np.asarray(action[0:2])
-        tmp_xy*=0.005
-        # np.clip(tmp_xy, self.constraint[0], self.constraint[1], out = tmp_xy)
-        tmp_z = np.asarray(action[2])*0.005
-        # np.clip(tmp_z, 0.05, 0.5, out = tmp_z)
-        action[0:2] = tmp_xy
-        action[2] = tmp_z
-        action[4:8] = orientation
         return action
 
 class TimeFeatureWrapper(gym.Wrapper):

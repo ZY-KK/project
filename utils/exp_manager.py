@@ -36,6 +36,7 @@ from utils.callbacks import SaveVecNormalizeCallback, TrialEvalCallback
 from utils.hyperparams_opt import HYPERPARAMS_SAMPLER
 from utils.utils import ALGOS, get_callback_list, get_latest_run_id, get_wrapper_class, linear_schedule
 
+from custom_policy import ResNetNetwork
 
 class ExperimentManager(object):
     """
@@ -156,7 +157,6 @@ class ExperimentManager(object):
         env = self.create_envs(self.n_envs, no_log=False)
 
         self._hyperparams = self._preprocess_action_noise(hyperparams, saved_hyperparams, env)
-
         if self.continue_training:
             model = self._load_pretrained_agent(self._hyperparams, env)
         elif self.optimize_hyperparameters:
@@ -321,10 +321,19 @@ class ExperimentManager(object):
 
         # Pre-process policy/buffer keyword arguments
         # Convert to python object if needed
+        if 'policy_kwargs' in hyperparams.keys():
+            if hyperparams['policy_kwargs']['features_extractor_class']=='ResNetNetwork':
+                hyperparams['policy_kwargs']['features_extractor_class']= ResNetNetwork
+                
+
+            
+
+
+        '''
         for kwargs_key in {"policy_kwargs", "replay_buffer_class", "replay_buffer_kwargs"}:
             if kwargs_key in hyperparams.keys() and isinstance(hyperparams[kwargs_key], str):
                 hyperparams[kwargs_key] = eval(hyperparams[kwargs_key])
-
+        '''
         # Delete keys so the dict can be pass to the model constructor
         if "n_envs" in hyperparams.keys():
             del hyperparams["n_envs"]

@@ -119,7 +119,7 @@ class Curriculum():
         self.success_rate = ((self.success_rate_rolling_average_n-1)*self.success_rate+float(is_success))/self.success_rate_rolling_average_n
 
         if self.verbose:
-            print('')
+            print('success rate',self.success_rate)
         
 
     def is_done(self):
@@ -153,6 +153,7 @@ class Curriculum():
             self.restart_exploration=False
 
             return info
+        
         return info
     def next_step(self):
         if self.step ==GraspStep.last():

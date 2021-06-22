@@ -38,12 +38,13 @@ class CustomCNNSimple(BaseFeaturesExtractor):
         return self.linear(self.cnn(observations))
         
 class ResNetNetwork(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.Space, features_dim: int):
-        super(ResNetNetwork, self).__init__(observation_space, features_dim=features_dim)
+    def __init__(self, observation_space: gym.Space, features_dim:int =64):
+        super(ResNetNetwork, self).__init__(observation_space, features_dim)
         n_input_channels = observation_space.shape[0]
+        
         hidden_sizes = [18, features_dim, features_dim]
         pretrained_CNN = 'resnet'+str(hidden_sizes[0])
-        print('================',pretrained_CNN)
+        # print('================',pretrained_CNN)
         self.resnet = th.hub.load('pytorch/vision:v0.9.0', pretrained_CNN, pretrained=True)
         for param in self.resnet.parameters():
             param.requires_grad = False
@@ -54,7 +55,7 @@ class ResNetNetwork(BaseFeaturesExtractor):
         self.net = nn.Sequential(
             self.resnet
         )
-        print(self.net)
+        # print(self.net)
         
 
     def forward(self, obs: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:

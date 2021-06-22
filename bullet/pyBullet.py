@@ -33,7 +33,8 @@ class PyBullet:
         self.urdfRootPath = pybullet_data.getDataPath()
         self.n_substeps = n_substeps
         self.timestep = 1.0 / 500
-        # p.setTimeStep(self.timestep)
+        p.setTimeStep(self.timestep)
+        p.resetSimulation()
         # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.setGravity(0, 0, -9.81)
@@ -60,7 +61,7 @@ class PyBullet:
         mode="rgb_array",
         width=960,
         height=720,
-        target_position=(0.7, 0, 0.05),
+        target_position=(0.5, 0, 0.65),
         distance=.7,
         yaw=90,
         pitch=-70,
@@ -100,7 +101,7 @@ class PyBullet:
                 yaw=yaw,
                 pitch=pitch,
                 roll=roll,
-                upAxisIndex=2,
+                upAxisIndex=upAxisIndex,
             )
             proj_matrix = p.computeProjectionMatrixFOV(
                 fov=60, aspect=float(self._width) / self._height, nearVal=self._near, farVal=self._far
@@ -356,7 +357,14 @@ class PyBullet:
     def get_quaternion_from_euler(self, angular):
         return p.getQuaternionFromEuler(angular)
 
-    @contextmanager        
+    @contextmanager 
+    def no_rendering(self):
+        """Disable rendering within this context."""
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
+        yield
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
+    
+    
     def add_table(self, basePosition):
         self._bodies_idx['table'] = p.loadURDF(os.path.join(self.urdfRootPath, "table/table.urdf"),basePosition=basePosition)
         
@@ -377,12 +385,7 @@ class PyBullet:
         self._bodies_idx['000'] = p.loadURDF(os.path.join(self.urdfRootPath, "random_urdfs/000/000.urdf"), basePosition=basePosition)
         # print('========2',self._bodies_idx['000'])
         return self._bodies_idx['000']
-    def no_rendering(self):
-        """Disable rendering within this context."""
-        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
-        yield
-        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
-
+    '''
     def loadURDF(self, body_name, fileName, basePosition, useFixedBase):
         """Load URDF file.
         Args:
@@ -390,6 +393,14 @@ class PyBullet:
         """
         self._bodies_idx[body_name] = p.loadURDF(os.path.join(self.urdfRootPath,fileName), useFixedBase=useFixedBase)
         # print('=======3', self._bodies_idx[body_name])
+        '''
+    def loadURDF(self, body_name, **kwargs):
+        """Load URDF file.
+
+        Args:
+            body_name (str): The name of the body. Must be unique in the sim.
+        """
+        self._bodies_idx[body_name] = p.loadURDF(**kwargs)
     def create_box(
         self,
         body_name,

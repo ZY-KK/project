@@ -9,9 +9,10 @@ class PyBulletRobot:
     def __init__(self, sim, body_name, file_name, base_position) -> None:
         self.sim = sim
         self.body_name = body_name
-        
-        self.load_robot(file_name, base_position)
-        self.setup()
+        with self.sim.no_rendering():
+            self.load_robot(file_name, base_position)
+            self.setup()
+
 
         
 

@@ -7,7 +7,7 @@ import pybullet as p
 from bullet.pyBullet import PyBullet
 from task.Grasp.PandaGraspEnv import PandaGraspEnv
 # from PandaReachEnv import PandaReachEnv
-from task.wrapper import ProcessFrame84, ImageToPyTorch,MoveConstraint, ProcessDepthFrame84, DepthToPyTorch
+from task.wrapper import ProcessFrame84, ImageToPyTorch,MoveConstraint, ProcessGrayFrame84, GrayToPyTorch
 import matplotlib.pyplot as plt
 from stable_baselines3 import PPO, SAC
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
@@ -43,7 +43,7 @@ eval_callback = EvalCallback(
                 eval_freq=10000,
                 deterministic=True,
             )
-model = PPO.load('./model/rl_model_4000_steps.zip', env=env)
+model = PPO.load('./model/rl_model_1000_steps.zip', env=env)
 
 mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
 
