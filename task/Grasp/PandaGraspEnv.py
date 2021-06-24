@@ -90,6 +90,7 @@ class PandaGraspEnv(gym.Env):
         linkIndexA = 10 # 9, 10 
         contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
         return contact_points
+
     def step(self, action):
         # TODO step function
         self.sim.step()
@@ -116,12 +117,14 @@ class PandaGraspEnv(gym.Env):
             return []
         else:
             model_id = contact_points_left[0][2]
+            
             for point_l in contact_points_left:
+                # print('point_l', point_l)
                 if model_id not in grasp_model_ready.keys():
                     grasp_model_ready[model_id] = []
                 
                 grasp_model_ready[model_id].append(point_l)
-        if len(contact_points_right==0):
+        if len(contact_points_right)==0:
             return []
         else:
             model_id = contact_points_right[0][2]
@@ -131,27 +134,31 @@ class PandaGraspEnv(gym.Env):
                 
                 grasp_model_ready[model_id].append(point_r)
         grasp_objects = []
+        # print('grasp_model_ready:', grasp_model_ready)
         for model, points_list in grasp_model_ready.items():
             # the gripper is open, if the num of contact points is less than two, continute
             if len(points_list)<len(self.robot.FINGERS_INDICES):
                 continue
             
             normals_avgs = []
-            for points in points_list:
+            for point in points_list:
                 normals_avg = np.array([0.0, 0.0, 0.0])
-                for point in points:
-                    normals_avg+=point[7] # contactNormalOnB
-                
+                # print('points:', point)
+                # for point in points:
+                    
+                #     normals_avg+=point[7] # contactNormalOnB
+                normals_avg+=point[7]
                 normals_avg/=np.linalg.norm(normals_avg)
 
                 normals_avgs.append(normals_avg)
-
+            print('normals_avgs',normals_avgs)
             normal_angles = []
             for v_1, v_2 in itertools.combinations(normals_avgs, 2):
-                angle = np.arccos(np.clip(np.dot(v_1, v_2), -1.0, 1.0))
-                normal_angles.appned(angle)
 
-            
+                angle = np.arccos(np.clip(np.dot(v_1, v_2), -1.0, 1.0))
+                normal_angles.append(angle)
+
+            print('normal_angles: ',normal_angles)
             angle_threshold = 0.5*np.pi/len(self.robot.FINGERS_INDICES)
             for ag in normal_angles:
                 if ag>angle_threshold:
@@ -240,11 +247,11 @@ class PandaGraspEnv(gym.Env):
         self.table = self.sim.get_body_ids()['table']
         state_object= [random.uniform(0.5,0.8),random.uniform(-0.2,0.2),0.65]
 
-        self.sim.add_object_000([0.4, 0, 0.65])
+        self.sim.add_object_000([0.42, 0, 0.65])
         print('==================')
         self.object_000_id = self.sim.get_body_ids()['000']
         
-        # self.object_ids.append(self.object_000_id)
+        self.object_ids.append(self.object_000_id)
         # self.add_random_obj()
     
 

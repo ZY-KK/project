@@ -137,15 +137,21 @@ class Panda(PyBulletRobot):
         target_angles = self.inverse_kinematics(
             position=target_ee_position, orientation=orientation
         )
-
+        
         if not self.block_gripper:
             fingers_ctrl = action[3] * 0.2  # limit maximum change in position
             fingers_width = self.get_fingers_width()
             target_fingers_width = fingers_width + fingers_ctrl
             target_angles[-2:] = [target_fingers_width / 2, target_fingers_width / 2]
-
-        self.control_joints(target_angles=target_angles)
         
+        
+        self.control_joints(target_angles=target_angles)
+        '''
+        if action[3]>0:
+            self.gripper_open()
+        else:
+            self.gripper_close()
+        '''
     
     def get_observation():
         pass

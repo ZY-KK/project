@@ -23,11 +23,15 @@ env = ProcessFrame84(env)
 env = ImageToPyTorch(env)
 
 env.reset()
-
+time.sleep(2)
+print("222222222")
+env.step([0.00, 0.00, -0.02, -0.5])
+time.sleep(2)
 for _ in range(1000):
-    action = env.action_space.sample()
-    env.step(action)
-    if env.check_contact_plane():
-        print("contact!!")
-        for _ in range(1000):
-            env.step([0.00, 0.00, 0.02, -0.10])
+            env.step([0.00, 0.00, -0.02, 0.10])
+            if env.check_contact_plane():
+                env.step([0.00, 0.00, -0.02, -0.10])
+                grasp = env.get_grasped_object()
+                if len(grasp)!=0:
+                    for _ in range(1000):
+                        env.step([0.00, 0.00, 0.02, -0.10])

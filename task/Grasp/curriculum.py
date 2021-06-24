@@ -143,6 +143,7 @@ class Curriculum():
             self.restart_exploration = True
             return True
         return False
+        
     def get_info(self):
         info = {}
         if self.step!=GraspStep.first() and self.restart_every_n_steps>0:
