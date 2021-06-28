@@ -3,7 +3,7 @@ from stable_baselines3.common import logger
 from typing import Union, Type, Dict
 import enum
 import math
-
+import numpy as np
 @enum.unique
 class GraspStep(enum.Enum):
     
@@ -58,6 +58,7 @@ class Curriculum():
         self.restart_every_n_steps =restart_every_n_steps
         self.reset_step_counter = restart_every_n_steps
         self.success_rate_threshold = success_rate_threshold
+        self.outside_workspace_reward = 5.0
         if not self.enable_steps:
             self.step: GraspStep = GraspStep.last()
         elif self.from_reach:
@@ -84,7 +85,6 @@ class Curriculum():
                 first_step = step
                 break
 
-
         kwargs = {}
         object_ids = self.task.get_object_ids()
         pos_tmp = {}
@@ -103,7 +103,8 @@ class Curriculum():
             else:
                 reward_factor = self.step_reward_multiplier**(self.step.value-step)
             # TODO: reward
-            reward+=reward_factor*self.GET_REWARD[GraspStep(step)](self, **kwargs)
+            # reward+=reward_factor*self.GET_REWARD[GraspStep(step)](self, **kwargs)
+            reward+=self.GET_REWARD[GraspStep(step)](self, **kwargs)
 
             if not self.step_completed[GraspStep(step)]:
                 break
@@ -184,6 +185,7 @@ class Curriculum():
     def reward_reach(self, **kwargs)-> float:
 
         object_pos = kwargs['object_pos']
+        # print('obj_pos',object_pos)
         min_distance  = self.task.get_closest_object_dis(object_pos)
         if min_distance<self.reach_required_dis:
             if GraspStep.REACH.value>=self.step.value:
@@ -207,14 +209,20 @@ class Curriculum():
         contact_points_left = self.task.get_contact_points_left()
         contact_points_right = self.task.get_contact_points_right()
         if len(contact_points_left)>0 or len(contact_points_right)>0:
-            if GraspStep.TOUCH.value>=self.step.value:
-                self.is_sucess = True
+            model_ids_l = contact_points_left[:,2]
+            model_ids_r = contact_points_right[:,2]
+            if len(np.intersect1d(model_ids_l, self.task.get_object_ids()))>0 \
+                or len(np.intersect1d(model_ids_r, self.task.get_object_ids()))>0:
 
-            self.step_completed[GraspStep.TOUCH] = True
-            return 1.0
+                if GraspStep.TOUCH.value>=self.step.value:
+                    self.is_sucess = True
+
+                self.step_completed[GraspStep.TOUCH] = True
+                return 1.0
+            else:
+                return 0.0
         else:
-            return 0.0
-            
+            return 0.0   
     def reward_grasp(self, **kwargs)-> float:
         grasp_obj = kwargs['grasp_obj']
         if len(grasp_obj)>0:
@@ -255,7 +263,14 @@ class Curriculum():
             if self.grond_collision_counter>=self.ground_collisions_till_termination:
                 self.is_failure=True
             return reward
-        
+        ee_pos = self.task.robot.get_ee_position()
+        if ee_pos[0]<self.task.workspace_volum[0] or ee_pos[0]>self.task.workspace_volum[1] \
+            or ee_pos[1]<self.task.workspace_volum[2] or ee_pos[1]>self.task.workspace_volum[3] \
+            or ee_pos[2]<self.task.workspace_volum[4] or ee_pos[2]>self.task.workspace_volum[5]:
+            reward-=self.outside_workspace_reward
+            
+            return reward
+            
 
         return reward
 

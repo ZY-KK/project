@@ -28,12 +28,12 @@ class PandaGraspEnv(gym.Env):
         self.object_ids = []
         self.robot_id = self.sim.get_body_ids()['panda']
         '''
-        self.workspace_volum = [0.3, 0.3, 0.2]
+        self.workspace_volum = [0.5, 0.8,-0.2,0.2,0.63,0.75]
 
 
         # self._create_scene()
         self.curriculum \
-            = Curriculum(task=self, enable_ws_scale=False, min_scale=0.1, enable_object_increase=False, max_count=4, enable_steps=True, reach_required_dis=0.01, from_reach=True, sparse_reward=True, step_increase_rewards=True, step_reward_multiplier=7.0, verbose=True, lift_height=0.225, act_quick_reward=-0.005, ground_collision_reward=-1.0, ground_collisions_till_termination=100, success_rate_rolling_average_n=100, restart_every_n_steps=0, success_rate_threshold=0.6, restart_exploration=False)
+            = Curriculum(task=self, enable_ws_scale=False, min_scale=0.1, enable_object_increase=False, max_count=4, enable_steps=True, reach_required_dis=0.02, from_reach=True, sparse_reward=True, step_increase_rewards=True, step_reward_multiplier=7.0, verbose=True, lift_height=0.225, act_quick_reward=-0.005, ground_collision_reward=-1.0, ground_collisions_till_termination=100, success_rate_rolling_average_n=100, restart_every_n_steps=0, success_rate_threshold=0.7, restart_exploration=False)
         self.create_space()
         
     def create_space(self):
@@ -77,18 +77,20 @@ class PandaGraspEnv(gym.Env):
         obs = self.get_observation()
         obs = np.asarray(obs)
         # print('=====', obs)
-        print('reset!!')
+        # print('reset!!')
         return obs
 
     def get_contact_points_left(self):
         bodyA = self.robot_id
         linkIndexA = 9 # 9, 10 
         contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
+        contact_points = np.asarray(contact_points)
         return contact_points
     def get_contact_points_right(self):
         bodyA = self.robot_id
         linkIndexA = 10 # 9, 10 
         contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
+        contact_points = np.asarray(contact_points)
         return contact_points
 
     def step(self, action):
@@ -151,14 +153,14 @@ class PandaGraspEnv(gym.Env):
                 normals_avg/=np.linalg.norm(normals_avg)
 
                 normals_avgs.append(normals_avg)
-            print('normals_avgs',normals_avgs)
+            # print('normals_avgs',normals_avgs)
             normal_angles = []
             for v_1, v_2 in itertools.combinations(normals_avgs, 2):
 
                 angle = np.arccos(np.clip(np.dot(v_1, v_2), -1.0, 1.0))
                 normal_angles.append(angle)
 
-            print('normal_angles: ',normal_angles)
+            # print('normal_angles: ',normal_angles)
             angle_threshold = 0.5*np.pi/len(self.robot.FINGERS_INDICES)
             for ag in normal_angles:
                 if ag>angle_threshold:
@@ -172,6 +174,7 @@ class PandaGraspEnv(gym.Env):
                     
                 
 
+    
 
 
     def get_closest_object_dis(self, object_positions: Dict[str, Tuple[float, float, float]]):
@@ -214,6 +217,7 @@ class PandaGraspEnv(gym.Env):
     def get_inverse_kinematics(self, newPos, orientation):
         return self.robot.get_inverse_kinematics(newPos, orientation)
     def get_object_ids(self):
+        self.object_ids = np.asarray(self.object_ids)
         return self.object_ids
     def get_plane_id(self):
         return self.plane
@@ -240,15 +244,15 @@ class PandaGraspEnv(gym.Env):
         self.robot = Panda(self.sim, base_position = [0.0, 0.0, 0.6])
         self.object_ids = []
         self.robot_id = self.sim.get_body_ids()['panda']
-        self.workspace_volum = [0.3, 0.3, 0.2]
+        # self.workspace_volum = [0.3, 0.3, 0.2]
         self.sim.add_plane(basePosition = [0, 0, 0])
         self.plane = self.sim.get_body_ids()['plane']
         self.sim.add_table(basePosition = [0.5,0,0])
         self.table = self.sim.get_body_ids()['table']
         state_object= [random.uniform(0.5,0.8),random.uniform(-0.2,0.2),0.65]
 
-        self.sim.add_object_000([0.42, 0, 0.65])
-        print('==================')
+        self.sim.add_object_000(state_object)
+        # print('==================')
         self.object_000_id = self.sim.get_body_ids()['000']
         
         self.object_ids.append(self.object_000_id)
@@ -257,9 +261,9 @@ class PandaGraspEnv(gym.Env):
 
     def add_random_obj(self):
         # random position
-        x = np.random.uniform(low =self.workspace_volum[0], high =0.8)
-        y = np.random.uniform(low = -self.workspace_volum[1], high = self.workspace_volum[1])
-        z = 0
+        x = np.random.uniform(low =self.workspace_volum[0], high =self.workspace_volum[1])
+        y = np.random.uniform(low = self.workspace_volum[2], high = self.workspace_volum[3])
+        z = 0.65
         pos = [x, y, z]
         
         # random id

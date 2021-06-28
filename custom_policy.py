@@ -48,7 +48,8 @@ class ResNetNetwork(BaseFeaturesExtractor):
         self.resnet = th.hub.load('pytorch/vision:v0.9.0', pretrained_CNN, pretrained=True)
         for param in self.resnet.parameters():
             param.requires_grad = False
-        
+        if observation_space.shape[0] == 1:
+            self.resnet.conv1 = nn.Conv2d(1, 64, kernel_size=(7,7), stride=(2,2), padding=(3,3), bias=False)
         #self.resnet.conv1 = nn.Conv2d(3, 64, kernel_size=(7,7), stride=(2,2), padding=(3,3), bias=False)
         self.resnet.fc = nn.Linear(self.resnet.fc.in_features, hidden_sizes[1])
         

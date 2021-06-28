@@ -130,7 +130,7 @@ class Panda(PyBulletRobot):
         ee_position = self.get_ee_position()
         target_ee_position = ee_position + ee_ctrl
         # Clip the height target. For some reason, it has a great impact on learning
-        target_ee_position[2] = max(0, target_ee_position[2])
+        target_ee_position[2] = max(0.63, target_ee_position[2])
 
         # compute the new joint angles
         orientation = self.sim.get_quaternion_from_euler([0.,-np.pi,np.pi/2.])

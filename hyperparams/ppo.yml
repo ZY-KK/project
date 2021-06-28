@@ -5,14 +5,13 @@ PandaGraspEnv-v0:
     features_extractor_kwargs:
       features_dim: 64
   env_wrapper:
-    - task.wrapper.ProcessFrame84
-    - task.wrapper.ImageToPyTorch
-    - task.wrapper.MoveConstraint
+    - task.wrapper.ProcessDepthFrame64
+    - task.wrapper.DepthToPyTorch
   n_envs: 8
   n_steps: 128
   n_epochs: 4
   batch_size: 256
-  n_timesteps: 50000
+  n_timesteps: 150000
   learning_rate: lin_2.5e-4
   clip_range: lin_0.1
   vf_coef: 0.5

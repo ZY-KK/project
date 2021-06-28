@@ -1,0 +1,24 @@
+PandaGraspEnv-v0:
+  policy: "MlpPolicy"
+  policy_kwargs:
+    features_extractor_class: "ResNetNetwork"
+    features_extractor_kwargs:
+      features_dim: 64
+  env_wrapper:
+    - task.wrapper.ProcessGrayFrame64
+    - task.wrapper.GrayToPyTorch
+    - task.wrapper.MoveConstraint
+  n_timesteps: 50000
+  buffer_size: 25000
+  learning_starts: 0
+  batch_size: 32
+  learning_rate: lin_0.0003
+  gamma: 0.95
+  tau: 0.01
+  ent_coef: "auto_0.1"
+  target_entropy: "auto"
+  train_freq: 1
+  gradient_steps: 1
+  noise_type: "normal"
+  noise_std: 0.025
+  optimize_memory_usage: True
