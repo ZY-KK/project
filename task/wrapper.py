@@ -54,6 +54,33 @@ class ProcessGrayFrame64(gym.ObservationWrapper):
         
         y_t = np.reshape(y_t, [64, 64, 1])
         return y_t.astype(np.uint8)
+
+class ProcessFrame84(gym.ObservationWrapper):
+    def __init__(self, env=None):
+        super(ProcessFrame84, self).__init__(env)
+        self.env = env
+        self.observation_space = gym.spaces.Box(
+            low=0, high=255, shape=(84, 84, 1), dtype=np.uint8)
+
+    def observation(self, obs):
+        return ProcessFrame84.process(self.env.sim.render(mode='rgb_array'))
+
+    def process(frame):
+        if frame.size == 720 * 960 * 3:
+            img = np.reshape(frame, [720, 960, 3]).astype(
+                np.float32)
+        else:
+            assert False, "Unknown resolution."
+        img = img[:, :, 0] * 0.399 + img[:, :, 1] * 0.587 + \
+             img[:, :, 2] * 0.114
+
+        resized_screen = cv2.resize(
+            img, (112, 84), interpolation=cv2.INTER_AREA)
+        y_t = resized_screen[:, 14:98]
+        
+        y_t = np.reshape(y_t, [84, 84, 1])
+        return y_t.astype(np.uint8)
+
 class GrayToPyTorch(gym.ObservationWrapper):
     def __init__(self, env) -> None:
         super(GrayToPyTorch, self).__init__(env)
@@ -82,6 +109,8 @@ class MoveConstraint(gym.ActionWrapper):
         self.env = env
     def action(self, action):
         action[2] = -.3
+        x = np.clip
+
         orientation = self.env.get_quaternion_from_euler([0.,-np.pi,np.pi/2.])
         return action
 class ProcessDepthFrame64(gym.ObservationWrapper):

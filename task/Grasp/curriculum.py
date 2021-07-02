@@ -4,6 +4,9 @@ from typing import Union, Type, Dict
 import enum
 import math
 import numpy as np
+from icecream import ic
+
+# ic.disable()
 @enum.unique
 class GraspStep(enum.Enum):
     
@@ -109,9 +112,10 @@ class Curriculum():
             if not self.step_completed[GraspStep(step)]:
                 break
         reward*=self.normalize_positive_reward_multiplier
+        ic(reward)
         neg_reward = self.reward_all(**kwargs)
         neg_reward*=self._normalize_negative_reward_multiplier
-
+        ic(neg_reward)
         reward+=neg_reward
 
         return reward
@@ -120,7 +124,8 @@ class Curriculum():
         self.success_rate = ((self.success_rate_rolling_average_n-1)*self.success_rate+float(is_success))/self.success_rate_rolling_average_n
 
         if self.verbose:
-            print('success rate',self.success_rate)
+            # print('success rate:',self.success_rate)
+            ic(self.success_rate)
         
 
     def is_done(self):
@@ -197,10 +202,6 @@ class Curriculum():
         
         if self.sparse_reward:
             return 0.0
-        else:
-            difference = self.previous_min_dis-min_distance
-            self.previous_min_dis = min_distance
-
             #TODO dence reward
             
 
@@ -259,14 +260,13 @@ class Curriculum():
         reward = -self.act_quick_reward
         if self.task.check_contact_plane():
             reward-=self.ground_collision_reward
+            if self.task.check_outside_ws():
+                reward-=self.outside_workspace_reward
             self.grond_collision_counter+=1
             if self.grond_collision_counter>=self.ground_collisions_till_termination:
                 self.is_failure=True
             return reward
-        ee_pos = self.task.robot.get_ee_position()
-        if ee_pos[0]<self.task.workspace_volum[0] or ee_pos[0]>self.task.workspace_volum[1] \
-            or ee_pos[1]<self.task.workspace_volum[2] or ee_pos[1]>self.task.workspace_volum[3] \
-            or ee_pos[2]<self.task.workspace_volum[4] or ee_pos[2]>self.task.workspace_volum[5]:
+        if self.task.check_outside_ws():
             reward-=self.outside_workspace_reward
             
             return reward

@@ -25,14 +25,14 @@ class PyBullet:
                 *self.background_color
             )
             p.connect(p.GUI)
-            # p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
-            # p.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 0)
+            p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+            p.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 0)
         else:
             p.connect(p.DIRECT)
         # p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40, cameraTargetPosition=[0.7,0.0,0.05])
         self.urdfRootPath = pybullet_data.getDataPath()
         self.n_substeps = n_substeps
-        self.timestep = 1.0 / 500
+        self.timestep = 1.0 / 1000
         p.setTimeStep(self.timestep)
         p.resetSimulation()
         # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING)
@@ -53,18 +53,19 @@ class PyBullet:
     def close(self):
         """Close the simulation."""
         p.disconnect()
-    def reset(self):
-        p.resetSimulation()
-        # p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
+        
+    # def reset(self):
+    #     p.resetSimulation()
+    #     # p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
     def render(
         self,
         mode="rgb_array",
         width=960,
         height=720,
-        target_position=(0.5, 0, 0.65),
+        target_position=(0.5, 0, 0.70),
         distance=.7,
-        yaw=90,
-        pitch=-70,
+        yaw=45,
+        pitch=-10,
         roll=0,
         upAxisIndex=2
     ):
@@ -385,6 +386,13 @@ class PyBullet:
         self._bodies_idx['000'] = p.loadURDF(os.path.join(self.urdfRootPath, "random_urdfs/000/000.urdf"), basePosition=basePosition)
         # print('========2',self._bodies_idx['000'])
         return self._bodies_idx['000']
+    def add_object_020(self, basePosition):
+        self._bodies_idx['020'] = p.loadURDF(os.path.join(self.urdfRootPath, "random_urdfs/020/020.urdf"), basePosition=basePosition,useFixedBase=False)
+        # print('========2',self._bodies_idx['000'])
+        return self._bodies_idx['020']
+    def add_object_model(self, basePosition):
+        self._bodies_idx['020'] = p.loadSDF('object_model/Dino_5/model.sdf')
+
     '''
     def loadURDF(self, body_name, fileName, basePosition, useFixedBase):
         """Load URDF file.

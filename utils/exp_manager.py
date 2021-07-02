@@ -322,9 +322,12 @@ class ExperimentManager(object):
         # Pre-process policy/buffer keyword arguments
         # Convert to python object if needed
         if 'policy_kwargs' in hyperparams.keys():
-            if hyperparams['policy_kwargs']['features_extractor_class']=='ResNetNetwork':
-                hyperparams['policy_kwargs']['features_extractor_class']= ResNetNetwork
-                
+            if 'features_extractor_class' in hyperparams['policy_kwargs']:
+                if hyperparams['policy_kwargs']['features_extractor_class']=='ResNetNetwork':
+                    hyperparams['policy_kwargs']['features_extractor_class']= ResNetNetwork
+            if 'CnnPolicy' in hyperparams.keys():
+                if isinstance(hyperparams["policy_kwargs"], str):
+                    hyperparams["policy_kwargs"] = eval(hyperparams["policy_kwargs"])
 
             
 

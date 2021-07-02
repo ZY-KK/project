@@ -15,7 +15,8 @@ import random
 import cv2
 from PIL import Image
 from bullet.pyBullet import PyBullet
-
+from icecream import ic
+ic.disable()
 class PandaGraspEnv(gym.Env):
 
     def __init__(self, sim) -> None:
@@ -28,12 +29,21 @@ class PandaGraspEnv(gym.Env):
         self.object_ids = []
         self.robot_id = self.sim.get_body_ids()['panda']
         '''
-        self.workspace_volum = [0.5, 0.8,-0.2,0.2,0.63,0.75]
+        self.workspace_volum = [0.5, 0.8,-0.2,0.2,0.62,0.75]
 
 
         # self._create_scene()
         self.curriculum \
-            = Curriculum(task=self, enable_ws_scale=False, min_scale=0.1, enable_object_increase=False, max_count=4, enable_steps=True, reach_required_dis=0.02, from_reach=True, sparse_reward=True, step_increase_rewards=True, step_reward_multiplier=7.0, verbose=True, lift_height=0.225, act_quick_reward=-0.005, ground_collision_reward=-1.0, ground_collisions_till_termination=100, success_rate_rolling_average_n=100, restart_every_n_steps=0, success_rate_threshold=0.7, restart_exploration=False)
+            = Curriculum(task=self, enable_ws_scale=False, \
+            min_scale=0.1, enable_object_increase=False, max_count=4, \
+            enable_steps=True, reach_required_dis=0.02, from_reach=True, \
+            sparse_reward=True, step_increase_rewards=True, \
+            step_reward_multiplier=7.0, verbose=True, lift_height=0.225, \
+            act_quick_reward=0.005, ground_collision_reward=1.0, \
+            ground_collisions_till_termination=100, \
+            success_rate_rolling_average_n=100, restart_every_n_steps=0, \
+            success_rate_threshold=0.7, restart_exploration=False)
+        
         self.create_space()
         
     def create_space(self):
@@ -92,11 +102,19 @@ class PandaGraspEnv(gym.Env):
         contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
         contact_points = np.asarray(contact_points)
         return contact_points
+    def check_outside_ws(self):
+        ee_pos = self.robot.get_ee_position()
+        if ee_pos[0]<self.workspace_volum[0] or ee_pos[0]>self.workspace_volum[1] \
+            or ee_pos[1]<self.workspace_volum[2] or ee_pos[1]>self.workspace_volum[3] \
+            or ee_pos[2]<self.workspace_volum[4] or ee_pos[2]>self.workspace_volum[5]:
+            return True
+        return False
 
     def step(self, action):
         # TODO step function
         self.sim.step()
         self.robot.set_action(action)
+        self.sim.render()
         obs = self.get_observation()
         
         reward = self.get_reward()
@@ -182,9 +200,11 @@ class PandaGraspEnv(gym.Env):
 
         ee_position = self.robot.get_ee_position()
         for object_position in object_positions.values():
+            # print('obj_pos: ', object_position)
             distance = np.linalg.norm([ee_position[0] - object_position[0],
-                                       ee_position[1] - object_position[1],
-                                       ee_position[2] - object_position[2]])
+                                    ee_position[1] - object_position[1],
+                                    ee_position[2] - object_position[2]])
+            ic(distance)
             if distance < min_distance:
                 min_distance = distance
 
@@ -250,15 +270,32 @@ class PandaGraspEnv(gym.Env):
         self.sim.add_table(basePosition = [0.5,0,0])
         self.table = self.sim.get_body_ids()['table']
         state_object= [random.uniform(0.5,0.8),random.uniform(-0.2,0.2),0.65]
-
-        self.sim.add_object_000(state_object)
-        # print('==================')
-        self.object_000_id = self.sim.get_body_ids()['000']
-        
-        self.object_ids.append(self.object_000_id)
+        # state_object = [0.43, 0.0, 0.65]
+        # self.sim.add_object_000(state_object)
+        # self.object_000_id = self.sim.get_body_ids()['000']
+        # self.object_ids.append(self.object_000_id)
+        # self.sim.add_object_020(state_object)
+        # self.object_020_id = self.sim.get_body_ids()['020']
+        # self.object_ids.append(self.object_020_id)
+        # self.sim.add_object_model(state_object)
+        # self.object_020_id = self.sim.get_body_ids()['020']
+        # self.object_ids.append(self.object_020_id)
         # self.add_random_obj()
-    
-
+        self.object_size = 0.04
+        self.sim.create_box(
+            body_name="object1",
+            half_extents=[
+                self.object_size / 2,
+                self.object_size / 2,
+                self.object_size / 2,
+            ],
+            mass=2,
+            position=[0.6, 0.0, self.object_size / 2+0.63],
+            rgba_color=[0.9, 0.1, 0.1, 1],
+            friction=10,  # increase friction. For some reason, it helps a lot learning
+        )
+        self.object_object1_id = self.sim.get_body_ids()['object1']
+        # print(self.object_object1_id)
     def add_random_obj(self):
         # random position
         x = np.random.uniform(low =self.workspace_volum[0], high =self.workspace_volum[1])
