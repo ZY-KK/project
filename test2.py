@@ -20,7 +20,7 @@ import time
 
 env = gym.make('PandaGraspEnv_color-v0')
 env = ProcessFrame64(env)
-env = ImageToPyTorch(env)
+# env = ImageToPyTorch(env)
 
 image = env.reset()
 # print(image.shape)
@@ -37,15 +37,19 @@ image = env.reset()
 # plt.show()
 # print("222222222")
 # env.step([0.00, 0.00, 0.00, -0.9])
-time.sleep(2)
-for _ in range(1000):
-            env.step([0.00, 0.00, -0.02, 0.10])
-            if env.check_contact_plane():
-                env.step([0.00, 0.00, -0.02, -0.10])
-                grasp = env.get_grasped_object()
-                if len(grasp)!=0:
-                    for _ in range(1000):
-                        env.step([0.00, 0.00, 0.02, -0.10])
+# time.sleep(2)
+# for _ in range(1000):
+#             env.step([0.00, 0.00, -0.02, 0.10])
+#             if env.check_contact_plane():
+#                 env.step([0.00, 0.00, -0.02, -0.10])
+#                 grasp = env.get_grasped_object()
+#                 if len(grasp)!=0:
+#                     for _ in range(1000):
+#                         env.step([0.00, 0.00, 0.02, -0.10])
 
                 # l_p = env.get_contact_points_left()
                 # print(l_p.shape)
+
+for i in range(1000):
+    action = env.action_space.sample()
+    env.step(action)

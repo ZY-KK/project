@@ -16,7 +16,7 @@ import cv2
 from PIL import Image
 from bullet.pyBullet import PyBullet
 from icecream import ic
-ic.disable()
+# ic.disable()
 class PandaGraspEnv(gym.Env):
 
     def __init__(self,render) -> None:
@@ -29,13 +29,14 @@ class PandaGraspEnv(gym.Env):
         self.object_ids = []
         self.robot_id = self.sim.get_body_ids()['panda']
         '''
+        
         self.workspace_volum = [0.5, 0.8,-0.2,0.2,0.62,0.75]
-
+        # self.robot_id = self.sim.get_body_ids()['panda']
         # self._create_scene()
         self.curriculum \
             = Curriculum(task=self, enable_ws_scale=False, \
             min_scale=0.1, enable_object_increase=False, max_count=4, \
-            enable_steps=True, reach_required_dis=0.02, from_reach=True, \
+            enable_steps=True, reach_required_dis=0.05, from_reach=True, \
             sparse_reward=True, step_increase_rewards=True, \
             step_reward_multiplier=7.0, verbose=True, lift_height=0.225, \
             act_quick_reward=0.005, ground_collision_reward=1.0, \
@@ -44,7 +45,7 @@ class PandaGraspEnv(gym.Env):
             success_rate_threshold=0.7, restart_exploration=False)
         
         self.create_space()
-        
+        self._create_scene()
     def create_space(self):
         self.create_observation_space()
         self.create_action_space()
@@ -79,14 +80,16 @@ class PandaGraspEnv(gym.Env):
         return info
         
     def reset(self):
-        self._create_scene()
+        
         self.robot.reset()
         self.curriculum.reset_task()
+        # self.sim.reset()
         # self._is_done=False
         obs = self.get_observation()
         obs = np.asarray(obs)
         # print('=====', obs)
         # print('reset!!')
+        ic('============reset==================')
         return obs
 
     def get_contact_points_left(self):
@@ -94,6 +97,7 @@ class PandaGraspEnv(gym.Env):
         linkIndexA = 9 # 9, 10 
         contact_points = self.sim.get_contact_points(bodyA=bodyA, linkIndexA = linkIndexA)
         contact_points = np.asarray(contact_points)
+        ic(contact_points)
         return contact_points
     def get_contact_points_right(self):
         bodyA = self.robot_id
@@ -198,6 +202,7 @@ class PandaGraspEnv(gym.Env):
         min_distance = np.inf
 
         ee_position = self.robot.get_ee_position()
+        ic(ee_position)
         for object_position in object_positions.values():
             # print('obj_pos: ', object_position)
             distance = np.linalg.norm([ee_position[0] - object_position[0],
@@ -296,7 +301,7 @@ class PandaGraspEnv(gym.Env):
         )
         self.object_object1_id = self.sim.get_body_ids()['object1']
         # print(self.object_object1_id)
-        
+        self.object_ids.append(self.object_object1_id)
 
     def add_random_obj(self):
         # random position

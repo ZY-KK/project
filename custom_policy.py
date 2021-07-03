@@ -7,6 +7,7 @@ from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 from stable_baselines3.common.policies import ActorCriticPolicy
 from torch.nn.modules import linear
 from torch.nn.modules.pooling import MaxPool2d
+from icecream import ic
 class CustomCNNSimple(BaseFeaturesExtractor):
 
     def __init__(self, observation_space: gym.Space, features_dim: int=256):
@@ -162,7 +163,7 @@ class CustomNetworkWithResNet(nn.Module):
         
         #self.resnet.conv1 = nn.Conv2d(3, 64, kernel_size=(7,7), stride=(2,2), padding=(3,3), bias=False)
         self.resnet.fc = nn.Linear(self.resnet.fc.in_features, hidden_sizes[1])
-        print(self.resnet)
+        ic(self.resnet)
         self.policy_net = nn.Sequential(
             self.resnet
         )

@@ -24,7 +24,7 @@ class PyBullet:
                        --background_color_blue={}".format(
                 *self.background_color
             )
-            '''
+            
             p.connect(p.GUI)
             p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
             p.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 0)
@@ -32,29 +32,29 @@ class PyBullet:
             self.physics_client = bc.BulletClient(connection_mode=p.GUI, options=options)
             self.physics_client.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
             self.physics_client.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 0)
-            
+            '''
         else:
             
-            # p.connect(p.DIRECT)
-            self.physics_client = bc.BulletClient(connection_mode=p.DIRECT)
+            p.connect(p.DIRECT)
+            # self.physics_client = bc.BulletClient(connection_mode=p.DIRECT)
         # p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40, cameraTargetPosition=[0.7,0.0,0.05])
         self.urdfRootPath = pybullet_data.getDataPath()
-        # self.n_substeps = n_substeps
-        # self.timestep = 1.0 / 500
-        # p.setTimeStep(self.timestep)
-        # # p.setRealTimeSimulation(enableRealTimeSimulation=1)
-        # p.resetSimulation()
-        # # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING)
-        # p.setAdditionalSearchPath(pybullet_data.getDataPath())
-        # p.setGravity(0, 0, -9.81)
-        # self._bodies_idx = {}
         self.n_substeps = n_substeps
         self.timestep = 1.0 / 500
-        self.physics_client.setTimeStep(self.timestep)
-        self.physics_client.resetSimulation()
-        self.physics_client.setAdditionalSearchPath(pybullet_data.getDataPath())
-        self.physics_client.setGravity(0, 0, -9.81)
+        p.setTimeStep(self.timestep)
+        # p.setRealTimeSimulation(enableRealTimeSimulation=1)
+        p.resetSimulation()
+        # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING)
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())
+        p.setGravity(0, 0, -9.81)
         self._bodies_idx = {}
+        # self.n_substeps = n_substeps
+        # self.timestep = 1.0 / 500
+        # self.physics_client.setTimeStep(self.timestep)
+        # self.physics_client.resetSimulation()
+        # self.physics_client.setAdditionalSearchPath(pybullet_data.getDataPath())
+        # self.physics_client.setGravity(0, 0, -9.81)
+        # self._bodies_idx = {}
 
 
     @property
@@ -65,24 +65,26 @@ class PyBullet:
     def step(self):
         """Step the simulation."""
         for _ in range(self.n_substeps):
-            self.physics_client.stepSimulation()
+            # self.physics_client.stepSimulation()
+            p.stepSimulation()
 
     def close(self):
         """Close the simulation."""
+        # self.physics_client.disconnect()
         p.disconnect()
         
-    # def reset(self):
-    #     p.resetSimulation()
-    #     # p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
+    def reset(self):
+        p.resetSimulation()
+        # p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
     def render(
         self,
         mode="rgb_array",
         width=960,
         height=720,
         target_position=(0.5, 0, 0.70),
-        distance=.7,
-        yaw=45,
-        pitch=-10,
+        distance=.6,
+        yaw=90,
+        pitch=-50,
         roll=0,
         upAxisIndex=2
     ):
@@ -110,10 +112,10 @@ class PyBullet:
         """
         
         if mode == "human":
-            self.physics_client.configureDebugVisualizer(self.physics_client.COV_ENABLE_SINGLE_STEP_RENDERING)
+            p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING)
             time.sleep(self.dt)  # wait to seems like real speed
         if mode == "rgb_array":
-            view_matrix = self.physics_client.computeViewMatrixFromYawPitchRoll(
+            view_matrix = p.computeViewMatrixFromYawPitchRoll(
                 cameraTargetPosition=target_position,
                 distance=distance,
                 yaw=yaw,
@@ -121,15 +123,15 @@ class PyBullet:
                 roll=roll,
                 upAxisIndex=upAxisIndex,
             )
-            proj_matrix = self.physics_client.computeProjectionMatrixFOV(
+            proj_matrix = p.computeProjectionMatrixFOV(
                 fov=60, aspect=float(self._width) / self._height, nearVal=self._near, farVal=self._far
             )
-            (_, _, px, depth, _) = self.physics_client.getCameraImage(
+            (_, _, px, depth, _) = p.getCameraImage(
                 width=width,
                 height=height,
                 viewMatrix=view_matrix,
                 projectionMatrix=proj_matrix,
-                renderer=self.physics_client.ER_BULLET_HARDWARE_OPENGL
+                renderer=p.ER_BULLET_HARDWARE_OPENGL
             )
             # # configure background color
             # bg = [val * 255 for val in self.background_color] + [255.0]
@@ -148,7 +150,7 @@ class PyBullet:
             rgb_array = rgb_array[:, :, :3]
             return rgb_array
         if mode == 'depth_array':
-            view_matrix = self.physics_client.computeViewMatrixFromYawPitchRoll(
+            view_matrix = p.computeViewMatrixFromYawPitchRoll(
                 cameraTargetPosition=target_position,
                 distance=distance,
                 yaw=yaw,
@@ -157,15 +159,15 @@ class PyBullet:
                 upAxisIndex=2,
             )
             
-            proj_matrix = self.physics_client.computeProjectionMatrixFOV(
+            proj_matrix = p.computeProjectionMatrixFOV(
                 fov=60, aspect=float(width) / height, nearVal=self._near, farVal=self._far
             )
-            (_, _, px, depth, _) = self.physics_client.getCameraImage(
+            (_, _, px, depth, _) = p.getCameraImage(
                 width=self._width,
                 height=self._height,
                 viewMatrix=view_matrix,
                 projectionMatrix=proj_matrix,
-                renderer=self.physics_client.ER_BULLET_HARDWARE_OPENGL
+                renderer=p.ER_BULLET_HARDWARE_OPENGL
             )
             
             depth_array = np.reshape(depth, (self._width,self._height, 1))
@@ -180,12 +182,12 @@ class PyBullet:
     def get_body_ids(self):
         return self._bodies_idx
     def get_contact_points(self, bodyA, linkIndexA):
-        return self.physics_client.getContactPoints(linkIndexA=linkIndexA, bodyA = bodyA)
+        return p.getContactPoints(linkIndexA=linkIndexA, bodyA = bodyA)
 
     def get_contact_points_A_and_B(self, bodyA, linkIndexA,  bodyB):
-        return self.physics_client.getContactPoints(bodyA = bodyA, linkIndexA = linkIndexA, bodyB=bodyB)
+        return p.getContactPoints(bodyA = bodyA, linkIndexA = linkIndexA, bodyB=bodyB)
     def get_quaternion_from_euler(self, angle):
-        return self.physics_client.getQuaternionFromEuler(angle)
+        return p.getQuaternionFromEuler(angle)
     def get_base_position(self, body):
         """Get the position of the body.
         Args:
@@ -193,7 +195,7 @@ class PyBullet:
         Returns:
             (x, y, z): The cartesian position.
         """
-        return self.physics_client.getBasePositionAndOrientation(self._bodies_idx[body])[0]
+        return p.getBasePositionAndOrientation(self._bodies_idx[body])[0]
 
     def get_base_orientation(self, body):
         """Get the orientation of the body.
@@ -202,7 +204,7 @@ class PyBullet:
         Returns:
             (x, y, z, w): The orientation as quaternion.
         """
-        return self.physics_client.getBasePositionAndOrientation(self._bodies_idx[body])[1]
+        return p.getBasePositionAndOrientation(self._bodies_idx[body])[1]
 
     def get_base_rotation(self, body):
         """Get the rotation of the body.
@@ -211,7 +213,7 @@ class PyBullet:
         Returns:
             (rx, ry, rz): The rotation.
         """
-        return self.physics_client.getEulerFromQuaternion(self.get_base_orientation(body))
+        return p.getEulerFromQuaternion(self.get_base_orientation(body))
 
     def get_base_velocity(self, body):
         """Get the velocity of the body.
@@ -220,7 +222,7 @@ class PyBullet:
         Returns:
             (vx, vy, vz): The cartesian velocity.
         """
-        return self.physics_client.getBaseVelocity(self._bodies_idx[body])[0]
+        return p.getBaseVelocity(self._bodies_idx[body])[0]
 
     def get_base_angular_velocity(self, body):
         """Get the angular velocity of the body.
@@ -229,7 +231,7 @@ class PyBullet:
         Returns:
             (wx, wy, wz): The angular velocity.
         """
-        return self.physics_client.getBaseVelocity(self._bodies_idx[body])[1]
+        return p.getBaseVelocity(self._bodies_idx[body])[1]
 
     def get_link_position(self, body, link):
         """Get the position of the link of the body.
@@ -239,7 +241,7 @@ class PyBullet:
         Returns:
             (x, y, z): The cartesian position.
         """
-        return self.physics_client.getLinkState(self._bodies_idx[body], link)[0]
+        return p.getLinkState(self._bodies_idx[body], link)[0]
 
     def get_link_orientation(self, body, link):
         """Get the orientation of the link of the body.
@@ -249,7 +251,7 @@ class PyBullet:
         Returns:
             (x, y, z, w): The orientation as quaternion.
         """
-        return self.physics_client.getLinkState(self._bodies_idx[body], link)[1]
+        return p.getLinkState(self._bodies_idx[body], link)[1]
 
     def get_link_velocity(self, body, link):
         """Get the velocity of the link of the body.
@@ -259,7 +261,7 @@ class PyBullet:
         Returns:
             (vx, vy, vz): The cartesian velocity.
         """
-        return self.physics_client.getLinkState(self._bodies_idx[body], link, computeLinkVelocity=True)[6]
+        return p.getLinkState(self._bodies_idx[body], link, computeLinkVelocity=True)[6]
 
     def get_link_angular_velocity(self, body, link):
         """Get the angular velocity of the link of the body.
@@ -269,7 +271,7 @@ class PyBullet:
         Returns:
             (wx, wy, wz): The angular velocity.
         """
-        return self.physics_client.getLinkState(self._bodies_idx[body], link, computeLinkVelocity=True)[7]
+        return p.getLinkState(self._bodies_idx[body], link, computeLinkVelocity=True)[7]
 
     def get_joint_angle(self, body, joint):
         """Get the angle of the joint of the body.
@@ -279,7 +281,7 @@ class PyBullet:
         Returns:
             float: The angle.
         """
-        return self.physics_client.getJointState(self._bodies_idx[body], joint)[0]
+        return p.getJointState(self._bodies_idx[body], joint)[0]
 
     def set_base_pose(self, body, position, orientation):
         """Set the position of the body.
@@ -288,7 +290,7 @@ class PyBullet:
             position (x, y, z): The target cartesian position.
             orientation (x, y, z, w): The target orientation as quaternion.
         """
-        self.physics_client.resetBasePositionAndOrientation(
+        p.resetBasePositionAndOrientation(
             bodyUniqueId=self._bodies_idx[body], posObj=position, ornObj=orientation
         )
 
@@ -310,7 +312,7 @@ class PyBullet:
             joint (int): Joint index in the body.
             angle (float): Target angle.
         """
-        self.physics_client.resetJointState(
+        p.resetJointState(
             bodyUniqueId=self._bodies_idx[body], jointIndex=joint, targetValue=angle
         )
 
@@ -328,10 +330,10 @@ class PyBullet:
             target_angles (List[float]): List of target angles.
             forces (List[float]): Forces to apply.
         """
-        self.physics_client.setJointMotorControlArray(
+        p.setJointMotorControlArray(
             self._bodies_idx[body],
             jointIndices=joints,
-            controlMode=self.physics_client.POSITION_CONTROL,
+            controlMode=p.POSITION_CONTROL,
             targetPositions=target_angles,
             forces=forces,
         )
@@ -346,7 +348,7 @@ class PyBullet:
         Returns:
             List[float]: The new joint state.
         """
-        return self.physics_client.calculateInverseKinematics(
+        return p.calculateInverseKinematics(
             bodyIndex=self._bodies_idx[body],
             endEffectorLinkIndex=ee_link,
             targetPosition=position,
@@ -361,7 +363,7 @@ class PyBullet:
             yaw (float): Yaw.
             pitch (float): Pitch.
         """
-        self.physics_client.resetDebugVisualizerCamera(
+        p.resetDebugVisualizerCamera(
             cameraDistance=distance,
             cameraYaw=yaw,
             cameraPitch=pitch,
@@ -369,46 +371,46 @@ class PyBullet:
         )
 
     def get_object_pos_and_orientation(self, objectUid):
-        pos, orientation = self.physics_client.getBasePositionAndOrientation(objectUid)
+        pos, orientation = p.getBasePositionAndOrientation(objectUid)
         return pos, orientation
     
     def get_quaternion_from_euler(self, angular):
-        return self.physics_client.getQuaternionFromEuler(angular)
+        return p.getQuaternionFromEuler(angular)
 
     @contextmanager 
     def no_rendering(self):
         """Disable rendering within this context."""
-        self.physics_client.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
         yield
-        self.physics_client.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
     
     
     def add_table(self, basePosition):
-        self._bodies_idx['table'] = self.physics_client.loadURDF(os.path.join(self.urdfRootPath, "table/table.urdf"),basePosition=basePosition)
+        self._bodies_idx['table'] = p.loadURDF(os.path.join(self.urdfRootPath, "table/table.urdf"),basePosition=basePosition)
         
         return self._bodies_idx['table']
 
     def add_plane(self, basePosition):
-        self._bodies_idx['plane'] = self.physics_client.loadURDF(os.path.join(self.urdfRootPath,"plane.urdf"), basePosition=basePosition)
+        self._bodies_idx['plane'] = p.loadURDF(os.path.join(self.urdfRootPath,"plane.urdf"), basePosition=basePosition)
         # print('========1',self._bodies_idx['plane'])
         
         return self._bodies_idx['plane']
     def add_random_object(self, obj_id, basePosition):
         
         # print('id==',obj_id)
-        self._bodies_idx[obj_id] = self.physics_client.loadURDF(os.path.join(self.urdfRootPath, 'random_urdfs/'+obj_id+'/'+obj_id+'.urdf'), basePosition=basePosition)
+        self._bodies_idx[obj_id] = p.loadURDF(os.path.join(self.urdfRootPath, 'random_urdfs/'+obj_id+'/'+obj_id+'.urdf'), basePosition=basePosition)
         return self._bodies_idx[obj_id]
             
     def add_object_000(self, basePosition):
-        self._bodies_idx['000'] = self.physics_client.loadURDF(os.path.join(self.urdfRootPath, "random_urdfs/000/000.urdf"), basePosition=basePosition)
+        self._bodies_idx['000'] = p.loadURDF(os.path.join(self.urdfRootPath, "random_urdfs/000/000.urdf"), basePosition=basePosition)
         # print('========2',self._bodies_idx['000'])
         return self._bodies_idx['000']
     def add_object_020(self, basePosition):
-        self._bodies_idx['020'] = self.physics_client.loadURDF(os.path.join(self.urdfRootPath, "random_urdfs/020/020.urdf"), basePosition=basePosition,useFixedBase=False)
+        self._bodies_idx['020'] = p.loadURDF(os.path.join(self.urdfRootPath, "random_urdfs/020/020.urdf"), basePosition=basePosition,useFixedBase=False)
         # print('========2',self._bodies_idx['000'])
         return self._bodies_idx['020']
     def add_object_model(self, basePosition):
-        self._bodies_idx['020'] = self.physics_client.loadSDF('object_model/Dino_5/model.sdf')
+        self._bodies_idx['020'] = p.loadSDF('object_model/Dino_5/model.sdf')
 
     '''
     def loadURDF(self, body_name, fileName, basePosition, useFixedBase):
@@ -425,7 +427,7 @@ class PyBullet:
         Args:
             body_name (str): The name of the body. Must be unique in the sim.
         """
-        self._bodies_idx[body_name] = self.physics_client.loadURDF(**kwargs)
+        self._bodies_idx[body_name] = p.loadURDF(**kwargs)
     def create_box(
         self,
         body_name,
@@ -457,7 +459,7 @@ class PyBullet:
         collision_kwargs = {"halfExtents": half_extents}
         return self._create_geometry(
             body_name,
-            geom_type=self.physics_client.GEOM_BOX,
+            geom_type=p.GEOM_BOX,
             mass=mass,
             position=position,
             ghost=ghost,
@@ -500,7 +502,7 @@ class PyBullet:
         collision_kwargs = {"radius": radius, "height": height}
         self._create_geometry(
             body_name,
-            geom_type=self.physics_client.GEOM_CYLINDER,
+            geom_type=p.GEOM_CYLINDER,
             mass=mass,
             position=position,
             ghost=ghost,
@@ -540,7 +542,7 @@ class PyBullet:
         collision_kwargs = {"radius": radius}
         self._create_geometry(
             body_name,
-            geom_type=self.physics_client.GEOM_SPHERE,
+            geom_type=p.GEOM_SPHERE,
             mass=mass,
             position=position,
             ghost=ghost,
@@ -572,14 +574,14 @@ class PyBullet:
             visual_kwargs (dict, optional): Visual kwargs. Defaults to {}.
             collision_kwargs (dict, optional): Collision kwargs. Defaults to {}.
         """
-        baseVisualShapeIndex = self.physics_client.createVisualShape(geom_type, **visual_kwargs)
+        baseVisualShapeIndex = p.createVisualShape(geom_type, **visual_kwargs)
         if not ghost:
-            baseCollisionShapeIndex = self.physics_client.createCollisionShape(
+            baseCollisionShapeIndex = p.createCollisionShape(
                 geom_type, **collision_kwargs
             )
         else:
             baseCollisionShapeIndex = -1
-        self._bodies_idx[body_name] = self.physics_client.createMultiBody(
+        self._bodies_idx[body_name] = p.createMultiBody(
             baseVisualShapeIndex=baseVisualShapeIndex,
             baseCollisionShapeIndex=baseCollisionShapeIndex,
             baseMass=mass,
@@ -626,7 +628,7 @@ class PyBullet:
             link (int): Link index in the body.
             friction (float): Lateral friction.
         """
-        self.physics_client.changeDynamics(
+        p.changeDynamics(
             bodyUniqueId=self._bodies_idx[body],
             linkIndex=link,
             lateralFriction=friction,

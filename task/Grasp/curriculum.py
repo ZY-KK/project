@@ -94,7 +94,7 @@ class Curriculum():
         for obj in object_ids:
             pos_tmp[obj]=tuple(self.task.get_target_pos(obj))
 
-
+        # ic(pos_tmp)
         kwargs['object_pos'] = pos_tmp
 
         # TODO for loop
@@ -112,12 +112,12 @@ class Curriculum():
             if not self.step_completed[GraspStep(step)]:
                 break
         reward*=self.normalize_positive_reward_multiplier
-        ic(reward)
+        # ic(reward)
         neg_reward = self.reward_all(**kwargs)
         neg_reward*=self._normalize_negative_reward_multiplier
-        ic(neg_reward)
+        # ic(neg_reward)
         reward+=neg_reward
-
+        ic(reward)
         return reward
 
     def update_success_rate(self, is_success:bool):
@@ -209,6 +209,17 @@ class Curriculum():
     def reward_touch(self, **kwargs) -> float:
         contact_points_left = self.task.get_contact_points_left()
         contact_points_right = self.task.get_contact_points_right()
+        if len(contact_points_left)>0:
+            model_ids_l = contact_points_left[:,2]
+            if len(np.intersect1d(model_ids_l, self.task.get_object_ids()))>0:
+                if GraspStep.TOUCH.value>=self.step.value:
+                    self.is_sucess = True
+
+                self.step_completed[GraspStep.TOUCH] = True
+                return 1.0
+            else:
+                return 0.0
+        '''
         if len(contact_points_left)>0 or len(contact_points_right)>0:
             model_ids_l = contact_points_left[:,2]
             model_ids_r = contact_points_right[:,2]
@@ -222,6 +233,18 @@ class Curriculum():
                 return 1.0
             else:
                 return 0.0
+        '''
+        if len(contact_points_right)>0:
+            model_ids_r = contact_points_right[:,2]
+            if len(np.intersect1d(model_ids_r, self.task.get_object_ids()))>0:
+                if GraspStep.TOUCH.value>=self.step.value:
+                    self.is_sucess = True
+
+                self.step_completed[GraspStep.TOUCH] = True
+                return 1.0
+            else:
+                return 0.0
+
         else:
             return 0.0   
     def reward_grasp(self, **kwargs)-> float:
@@ -232,7 +255,7 @@ class Curriculum():
             else:
                 self.is_sucess
             if self.verbose:
-                print('grasp_obj', grasp_obj)
+                ic(grasp_obj)
         
             return 1.0
         else:
