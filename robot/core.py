@@ -6,7 +6,7 @@ import numpy as np
 class PyBulletRobot:
 
 
-    def __init__(self, sim, body_name, file_name, base_position) -> None:
+    def __init__(self, sim, body_name, file_name, base_position):
         self.sim = sim
         self.body_name = body_name
         with self.sim.no_rendering():

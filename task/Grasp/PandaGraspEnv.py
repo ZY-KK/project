@@ -19,10 +19,10 @@ from icecream import ic
 ic.disable()
 class PandaGraspEnv(gym.Env):
 
-    def __init__(self, sim) -> None:
+    def __init__(self,render) -> None:
         super().__init__()
         self.n_action = 4
-        self.sim = sim
+        self.sim = PyBullet(render=render)
         self._is_done = False
         '''
         self.robot = Panda(self.sim, base_position = [0.0, 0.0, 0.0])
@@ -30,7 +30,6 @@ class PandaGraspEnv(gym.Env):
         self.robot_id = self.sim.get_body_ids()['panda']
         '''
         self.workspace_volum = [0.5, 0.8,-0.2,0.2,0.62,0.75]
-
 
         # self._create_scene()
         self.curriculum \
@@ -260,7 +259,7 @@ class PandaGraspEnv(gym.Env):
         
         # self.sim.add_table(basePosition = [0.5,0,-0.65])
         # self.table = self.sim.get_body_ids()['table']
-        self.sim.resetSimulation()
+        # self.sim.resetSimulation()
         self.robot = Panda(self.sim, base_position = [0.0, 0.0, 0.6])
         self.object_ids = []
         self.robot_id = self.sim.get_body_ids()['panda']
@@ -270,7 +269,7 @@ class PandaGraspEnv(gym.Env):
         self.sim.add_table(basePosition = [0.5,0,0])
         self.table = self.sim.get_body_ids()['table']
         state_object= [random.uniform(0.5,0.8),random.uniform(-0.2,0.2),0.65]
-        # state_object = [0.43, 0.0, 0.65]
+        state_object = [0.43, 0.0, 0.65]
         # self.sim.add_object_000(state_object)
         # self.object_000_id = self.sim.get_body_ids()['000']
         # self.object_ids.append(self.object_000_id)
@@ -281,6 +280,7 @@ class PandaGraspEnv(gym.Env):
         # self.object_020_id = self.sim.get_body_ids()['020']
         # self.object_ids.append(self.object_020_id)
         # self.add_random_obj()
+        
         self.object_size = 0.04
         self.sim.create_box(
             body_name="object1",
@@ -296,6 +296,8 @@ class PandaGraspEnv(gym.Env):
         )
         self.object_object1_id = self.sim.get_body_ids()['object1']
         # print(self.object_object1_id)
+        
+
     def add_random_obj(self):
         # random position
         x = np.random.uniform(low =self.workspace_volum[0], high =self.workspace_volum[1])

@@ -15,6 +15,6 @@ register(
 	id='PandaGraspEnv_color-v0',
 	entry_point='task.Grasp.PandaGraspEnv:PandaGraspEnv',
 	kwargs={
-		'sim': PyBullet(render=True)
+		'render': True
 	}
 )
