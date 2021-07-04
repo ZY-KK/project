@@ -18,7 +18,7 @@ from stable_baselines3.common.evaluation import evaluate_policy
 from callback import CheckpointCallback, EvalCallback, SaveVecNormalizeCallback
 import time
 
-env = gym.make('PandaGraspEnv_color-v0')
+env = gym.make('PandaReachEnv_color-v0')
 env = ProcessFrame64(env)
 # env = ImageToPyTorch(env)
 

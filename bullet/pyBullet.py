@@ -81,10 +81,10 @@ class PyBullet:
         mode="rgb_array",
         width=960,
         height=720,
-        target_position=(0.5, 0, 0.70),
+        target_position=(0.7, -0.2, 1.00),
         distance=.6,
-        yaw=90,
-        pitch=-50,
+        yaw=35,
+        pitch=-35,
         roll=0,
         upAxisIndex=2
     ):

@@ -16,3 +16,24 @@ PandaGraspEnv-v0:
   clip_range: lin_0.1
   vf_coef: 0.5
   ent_coef: 0.01
+
+PandaReachEnv_color-v0:
+  policy: "CnnPolicy"
+  policy_kwargs: "dict(log_std_init=-2.7,
+                       ortho_init=False,
+                       activation_fn=nn.ReLU,
+                       net_arch=[128, dict(pi=[64, 64], vf=[64, 64])]
+                       )"
+  env_wrapper:
+    - task.wrapper.ProcessFrame64
+    - task.wrapper.MoveConstraint
+  n_envs: 8
+  n_steps: 128
+  n_epochs: 4
+  batch_size: 256
+  n_timesteps: 50000
+  learning_rate: lin_2.5e-4
+  clip_range: lin_0.1
+  vf_coef: 0.5
+  ent_coef: 0.01
+  use_sde: True
