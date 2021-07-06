@@ -10,6 +10,5 @@ import numpy as np
 # print('b' in h['a'].keys())
 b=0
 
-a  = np.array([0.9])
-np.clip(a, a_min=0.5, a_max=0.8, out=a)
-print(a)
+a  = np.array([0, 9])
+print(len(np.intersect1d(b, a)))

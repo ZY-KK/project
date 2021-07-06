@@ -1,0 +1,1 @@
+python enjoy.py --algo sac --env PandaTouchEnv_color-v0 -f logs/ --exp-id 16 --load-checkpoint 10000

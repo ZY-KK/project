@@ -1,6 +1,7 @@
 from gym.envs.registration import register
 from task.Grasp.PandaGraspEnv import PandaGraspEnv
 from task.Reach.PandaReachEnv import PandaReachEnv
+from task.Touch.PandaTouchEnv import PandaTouchEnv
 from bullet.pyBullet import PyBullet
 '''
 register(
@@ -21,10 +22,19 @@ register(
 )
 '''
 
-
+'''
 register(
 	id='PandaReachEnv_color-v0',
 	entry_point='task.Reach.PandaReachEnv:PandaReachEnv',
+	kwargs={
+		'render': True
+	}
+)
+'''
+
+register(
+	id='PandaTouchEnv_color-v0',
+	entry_point='task.Touch.PandaTouchEnv:PandaTouchEnv',
 	kwargs={
 		'render': True
 	}

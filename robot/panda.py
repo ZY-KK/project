@@ -132,7 +132,7 @@ class Panda(PyBulletRobot):
         # Clip the height target. For some reason, it has a great impact on learning
         
         x = np.array([target_ee_position[0]])
-        np.clip(x, a_min=0.4, a_max=0.9, out=x)
+        np.clip(x, a_min=0.2, a_max=1.0, out=x)
         y = np.array([target_ee_position[1]])
         np.clip(y, a_min=-0.3, a_max=0.3, out=y)
         target_ee_position[0] = x[0]

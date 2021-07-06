@@ -218,6 +218,7 @@ class Curriculum():
                 self.step_completed[GraspStep.TOUCH] = True
                 return 1.0
             else:
+                # self.is_sucess = False
                 return 0.0
         '''
         if len(contact_points_left)>0 or len(contact_points_right)>0:
@@ -243,6 +244,7 @@ class Curriculum():
                 self.step_completed[GraspStep.TOUCH] = True
                 return 1.0
             else:
+                
                 return 0.0
 
         else:

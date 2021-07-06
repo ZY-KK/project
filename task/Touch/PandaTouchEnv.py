@@ -17,7 +17,7 @@ from PIL import Image
 from bullet.pyBullet import PyBullet
 from icecream import ic
 # ic.disable()
-class PandaReachEnv(gym.Env):
+class PandaTouchEnv(gym.Env):
 
     def __init__(self,render) -> None:
         super().__init__()
@@ -58,20 +58,32 @@ class PandaReachEnv(gym.Env):
         pass
 
     def get_reward(self):
-        pos_tmp = {}
-        self.get_object_ids()
-        for obj in self.object_ids:
-            pos_tmp[obj]=tuple(self.get_target_pos(obj))
-        min_distance  = self.get_closest_object_dis(pos_tmp)
-        if min_distance<0.05:
-            self._is_done = True
-            reward = 1.0
+        contact_points_left = self.get_contact_points_left()
+        contact_points_right = self.get_contact_points_right()
+        if len(contact_points_left)>0:
+            model_ids_l = contact_points_left[:,2]
+            # ic(model_ids_l)
+            if len(np.intersect1d(model_ids_l, self.get_object_ids()))>0:
+                self._is_done = True
+                return 1.0
+            else:
+                self._is_done = False
+                return 0.0
+
+        if len(contact_points_right)>0:
+            model_ids_r = contact_points_right[:,2]
+            # ic(model_ids_r)
+            if len(np.intersect1d(model_ids_r, self.get_object_ids()))>0:
+                self._is_done = True
+
+                return 1.0
+            else:
+                self._is_done = False
+                return 0.0
         else:
+
             self._is_done = False
-            reward = 0.0
-
-        return reward
-
+            return 0.0 
     def is_done(self):
         
         return self._is_done
@@ -80,7 +92,8 @@ class PandaReachEnv(gym.Env):
         info = {'done': self._is_done}
         # print('info:', info)
         return info
-        
+    def render(self, mode):
+        self.sim.render(mode=mode)
     def reset(self):
         
         self.robot.reset()
@@ -101,7 +114,6 @@ class PandaReachEnv(gym.Env):
         contact_points = np.asarray(contact_points)
         # ic(contact_points)
         return contact_points
-        
     def get_contact_points_right(self):
         bodyA = self.robot_id
         linkIndexA = 10 # 9, 10 
@@ -213,7 +225,7 @@ class PandaReachEnv(gym.Env):
             distance = np.linalg.norm([ee_position[0] - object_position[0],
                                     ee_position[1] - object_position[1],
                                     ee_position[2] - object_position[2]])
-            # ic(distance)
+            ic(distance)
             if distance < min_distance:
                 min_distance = distance
 
@@ -252,6 +264,7 @@ class PandaReachEnv(gym.Env):
         return self.plane
     def get_table_id(self):
         return self.table
+
     '''
     def _create_scene(self):
         self.sim.add_plane(basePosition = [0, 0, 0])
@@ -265,6 +278,7 @@ class PandaReachEnv(gym.Env):
         self.object_ids.append(self.object_000_id)
         self.add_random_obj()
     '''
+
     def _create_scene(self):
         
         # self.sim.add_table(basePosition = [0.5,0,-0.65])
@@ -305,7 +319,7 @@ class PandaReachEnv(gym.Env):
             friction=10,  # increase friction. For some reason, it helps a lot learning
         )
         self.object_object1_id = self.sim.get_body_ids()['object1']
-        # print(self.object_object1_id)
+        ic(self.object_object1_id)
         self.object_ids.append(self.object_object1_id)
 
     def add_random_obj(self):
