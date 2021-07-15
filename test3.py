@@ -8,7 +8,10 @@ import numpy as np
 # h['a']={'b':2}
 
 # print('b' in h['a'].keys())
-b=0
 
-a  = np.array([0, 9])
-print(len(np.intersect1d(b, a)))
+
+a = 1.0
+
+a -=.3
+
+print(a)

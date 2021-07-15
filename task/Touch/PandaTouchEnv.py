@@ -95,7 +95,8 @@ class PandaTouchEnv(gym.Env):
     def render(self, mode):
         self.sim.render(mode=mode)
     def reset(self):
-        
+        self.sim.resetSimulation()
+        self._create_scene()
         self.robot.reset()
         
         # self.sim.reset()
@@ -292,11 +293,17 @@ class PandaTouchEnv(gym.Env):
         self.plane = self.sim.get_body_ids()['plane']
         self.sim.add_table(basePosition = [0.5,0,0])
         self.table = self.sim.get_body_ids()['table']
-        state_object= [random.uniform(0.5,0.8),random.uniform(-0.2,0.2),0.65]
-        state_object = [0.43, 0.0, 0.65]
-        # self.sim.add_object_000(state_object)
-        # self.object_000_id = self.sim.get_body_ids()['000']
-        # self.object_ids.append(self.object_000_id)
+        # self.sim.add_tray(basePosition=[0.60,0,0.65])
+        # self.tray = self.sim.get_body_ids()['tray']
+        state_object= [random.uniform(0.45,0.6),random.uniform(-0.05,0.05), 0.64]
+        # state_object = [0.5, 0.0, 0.65]
+
+        # add object 000
+        '''
+        self.sim.add_object_000(state_object)
+        self.object_000_id = self.sim.get_body_ids()['000']
+        self.object_ids.append(self.object_000_id)
+        '''
         # self.sim.add_object_020(state_object)
         # self.object_020_id = self.sim.get_body_ids()['020']
         # self.object_ids.append(self.object_020_id)
@@ -305,6 +312,7 @@ class PandaTouchEnv(gym.Env):
         # self.object_ids.append(self.object_020_id)
         # self.add_random_obj()
         
+        # add box
         self.object_size = 0.04
         self.sim.create_box(
             body_name="object1",
@@ -314,13 +322,14 @@ class PandaTouchEnv(gym.Env):
                 self.object_size / 2,
             ],
             mass=2,
-            position=[0.5, 0.0, self.object_size / 2+0.63],
+            position=[state_object[0], state_object[1], self.object_size / 2+0.65],
             rgba_color=[0.9, 0.1, 0.1, 1],
             friction=10,  # increase friction. For some reason, it helps a lot learning
         )
         self.object_object1_id = self.sim.get_body_ids()['object1']
-        ic(self.object_object1_id)
+        # ic(self.object_object1_id)
         self.object_ids.append(self.object_object1_id)
+        
 
     def add_random_obj(self):
         # random position

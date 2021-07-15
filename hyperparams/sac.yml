@@ -74,15 +74,16 @@ PandaReachEnv_color-v0:
 
 
 PandaTouchEnv_color-v0:
-  policy: "CnnPolicy"
+  policy: "CustomResNetPolicy"
   policy_kwargs:
     n_critics: 2
     net_arch: [128, 128]
   env_wrapper:
     - task.wrapper.ProcessFrame84
+    - task.wrapper.ImageToPyTorch
     - task.wrapper.MoveConstraint
     - task.wrapper.TimeLimit:
-        max_episode_steps: 400
+        max_episode_steps: 500
   n_timesteps: 50000
   buffer_size: 25000
   learning_starts: 0

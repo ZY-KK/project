@@ -26,8 +26,8 @@ class PyBullet:
             )
             
             p.connect(p.GUI)
-            p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
-            p.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 0)
+            # p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+            # p.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 0)
             '''
             self.physics_client = bc.BulletClient(connection_mode=p.GUI, options=options)
             self.physics_client.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
@@ -81,9 +81,9 @@ class PyBullet:
         mode="rgb_array",
         width=960,
         height=720,
-        target_position=(0.7, -0.2, 1.00),
+        target_position=(0.7, 0.0, 0.70),
         distance=.6,
-        yaw=35,
+        yaw=90,
         pitch=-35,
         roll=0,
         upAxisIndex=2
@@ -175,10 +175,19 @@ class PyBullet:
             #print('depth=',depth)
             return depth
 
-    '''
+    
     def resetSimulation(self):
-        self.physics_client.resetSimulation()
-    '''
+        self.urdfRootPath = pybullet_data.getDataPath()
+        self.n_substeps = 20
+        self.timestep = 1.0 / 500
+        p.setTimeStep(self.timestep)
+        # p.setRealTimeSimulation(enableRealTimeSimulation=1)
+        p.resetSimulation()
+        # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING)
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())
+        p.setGravity(0, 0, -9.81)
+
+    
     def get_body_ids(self):
         return self._bodies_idx
     def get_contact_points(self, bodyA, linkIndexA):
@@ -395,6 +404,10 @@ class PyBullet:
         # print('========1',self._bodies_idx['plane'])
         
         return self._bodies_idx['plane']
+    def add_tray(self, basePosition):
+        self._bodies_idx['tray'] = p.loadURDF(os.path.join(self.urdfRootPath,"tray/traybox.urdf"), basePosition=basePosition)
+        return self._bodies_idx['tray']
+
     def add_random_object(self, obj_id, basePosition):
         
         # print('id==',obj_id)

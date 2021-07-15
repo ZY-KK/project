@@ -2,3 +2,28 @@ height: 64
 width: 64
 near: 0.02
 far: 2.
+
+
+
+target_position: (0.7, -0.2, 0.60)
+distance: .6
+yaw: 35
+pitch: -35
+roll: 0
+
+
+
+target_position: (0.7,0,0.65)
+distance: .7
+yaw: 90
+pitch: -70
+roll: 0
+
+
+
+
+target_position: (0.7,0,0.70)
+distance: .6
+yaw: 90
+pitch: -35
+roll: 0

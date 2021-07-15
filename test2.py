@@ -20,17 +20,19 @@ import time
 
 env = gym.make('PandaTouchEnv_color-v0')
 env = ProcessFrame64(env)
-env = ImageToPyTorch(env)
+# env = ImageToPyTorch(env)
 env = MoveConstraint(env)
 env = TimeLimit(env, max_episode_steps=1000)
 # env = TimeFeatureWrapper(env)
 image = env.reset()
-print(image.shape)
-# plt.figure()
-# plt.imshow(image.squeeze(),cmap='gray')
-# plt.title('Example extracted screen')
-# plt.show()
-# time.sleep(2)
+
+plt.figure()
+plt.imshow(image.squeeze(),cmap='gray')
+plt.title('Example extracted screen')
+plt.show()
+
+# env.step([0.00, 0.00, -0.02, 0.10])
+# time.sleep(10)
 
 # image = env.reset()
 # plt.figure()
