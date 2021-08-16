@@ -25,12 +25,14 @@ env = MoveConstraint(env)
 env = TimeLimit(env, max_episode_steps=1000)
 # env = TimeFeatureWrapper(env)
 image = env.reset()
-
+time.sleep(1)
+print(image)
 plt.figure()
 plt.imshow(image.squeeze(),cmap='gray')
 plt.title('Example extracted screen')
 plt.show()
-
+# for i in range(64):
+# 	print(image[i])
 # env.step([0.00, 0.00, -0.02, 0.10])
 # time.sleep(10)
 

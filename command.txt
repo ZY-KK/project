@@ -1,1 +1,3 @@
 python enjoy.py --algo sac --env PandaTouchEnv_color-v0 -f logs/ --exp-id 16 --load-checkpoint 10000
+
+python scripts/plot_train.py -a sac -e PandaTouchEnv_color-v0 -f logs/sac/PandaGraspEnv_color-v0_51

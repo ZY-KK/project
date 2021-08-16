@@ -35,3 +35,23 @@ PandaTouchEnv_color-v0:
   vf_coef: 0.5
   ent_coef: 0.01
   use_sde: True
+
+
+PandaTouchEnv_depth-v0:
+  policy: "PPOResnetPolicy"
+  env_wrapper:
+    - task.wrapper.ProcessDepthFrame64
+    - task.wrapper.DepthToPyTorch
+    - task.wrapper.MoveConstraint
+    - task.wrapper.TimeLimit:
+        max_episode_steps: 500
+  n_envs: 4
+  n_steps: 500
+  n_epochs: 256
+  batch_size: 256
+  n_timesteps: 20000
+  learning_rate: lin_2.5e-4
+  clip_range: lin_0.1
+  vf_coef: 0.5
+  ent_coef: 0.01
+  use_sde: True

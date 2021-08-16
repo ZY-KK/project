@@ -1,2 +1,4 @@
 logs/
 tensorboard_logs/
+plot/
+pic/

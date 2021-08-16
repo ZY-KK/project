@@ -89,7 +89,7 @@ class PandaTouchEnv(gym.Env):
         return self._is_done
 
     def get_info(self):
-        info = {'done': self._is_done}
+        info = {'is_success': self._is_done}
         # print('info:', info)
         return info
     def render(self, mode):
@@ -100,7 +100,7 @@ class PandaTouchEnv(gym.Env):
         self.robot.reset()
         
         # self.sim.reset()
-        # self._is_done=False
+        self._is_done=False
         obs = self.get_observation()
         obs = np.asarray(obs)
         # print('=====', obs)
@@ -140,7 +140,8 @@ class PandaTouchEnv(gym.Env):
         done = self.is_done()
         info = self.get_info()
         if reward>0:
-            ic(reward, done)
+            ic(reward, info)
+
         return obs, reward, done, info
 
     
@@ -289,8 +290,10 @@ class PandaTouchEnv(gym.Env):
         self.object_ids = []
         self.robot_id = self.sim.get_body_ids()['panda']
         # self.workspace_volum = [0.3, 0.3, 0.2]
-        self.sim.add_plane(basePosition = [0, 0, 0])
+        # self.sim.add_plane(basePosition = [0, 0, 0])
+        self.sim.create_plane(z_offset=0)
         self.plane = self.sim.get_body_ids()['plane']
+        # ic(self.plane)
         self.sim.add_table(basePosition = [0.5,0,0])
         self.table = self.sim.get_body_ids()['table']
         # self.sim.add_tray(basePosition=[0.60,0,0.65])

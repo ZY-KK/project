@@ -35,7 +35,19 @@ register(
 register(
 	id='PandaTouchEnv_color-v0',
 	entry_point='task.Touch.PandaTouchEnv:PandaTouchEnv',
+	max_episode_steps=250,
 	kwargs={
-		'render': True
+		'render': False
 	}
 )
+
+
+'''
+register(
+	id='PandaTouchEnv_depth-v0',
+	entry_point='task.Touch.PandaTouchEnv:PandaTouchEnv',
+	kwargs={
+		'render': False
+	}
+)
+'''

@@ -25,7 +25,7 @@ class PyBullet:
                 *self.background_color
             )
             
-            p.connect(p.GUI)
+            p.connect(p.GUI, options=options)
             # p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
             # p.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 0)
             '''
@@ -34,7 +34,11 @@ class PyBullet:
             self.physics_client.configureDebugVisualizer(p.COV_ENABLE_MOUSE_PICKING, 0)
             '''
         else:
-            
+            options = "--background_color_red={} \
+                       --background_color_green={} \
+                       --background_color_blue={}".format(
+                *self.background_color
+            )
             p.connect(p.DIRECT)
             # self.physics_client = bc.BulletClient(connection_mode=p.DIRECT)
         # p.resetDebugVisualizerCamera(cameraDistance=1.5, cameraYaw=0, cameraPitch=-40, cameraTargetPosition=[0.7,0.0,0.05])
@@ -171,7 +175,7 @@ class PyBullet:
             )
             
             depth_array = np.reshape(depth, (self._width,self._height, 1))
-            depth = 1. * self._far * self._near / (self._far - (self._far - self._near) * depth_array)
+            # depth = 1. * self._far * self._near / (self._far - (self._far - self._near) * depth_array)
             #print('depth=',depth)
             return depth
 
